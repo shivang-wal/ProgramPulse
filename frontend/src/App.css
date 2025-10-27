@@ -42,7 +42,18 @@ h1, h2, h3, h4, h5, h6 {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.brand-logo {
+  height: 45px;
+  width: auto;
+}
+
+.brand-divider {
+  width: 2px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .brand-icon {
@@ -330,11 +341,115 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 2rem;
 }
 
-.events-list {
+.calendar-view-filters {
+  display: flex;
+  gap: 0.5rem;
+  background: #F5F0FF;
+  padding: 0.25rem;
+  border-radius: 28px;
+}
+
+.view-filter-btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 24px;
+  border: none;
+  background: transparent;
+  color: #6B5B95;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-filter-btn.active {
+  background: linear-gradient(135deg, #4A4173 0%, #6B5B95 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 65, 115, 0.3);
+}
+
+.view-filter-btn:hover:not(.active) {
+  background: rgba(74, 65, 115, 0.1);
+  color: #4A4173;
+}
+
+.calendar-main {
+  display: flex;
+  gap: 2rem;
   margin-top: 2rem;
+}
+
+.calendar-section {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-wrapper {
+  width: 100%;
+  max-width: 900px;
+}
+
+.calendar-wrapper .rdp {
+  --rdp-cell-size: 60px;
+  --rdp-accent-color: #4A4173;
+  margin: 0;
+}
+
+.calendar-wrapper .rdp-months {
+  justify-content: center;
+}
+
+.calendar-wrapper .rdp-caption {
+  margin-bottom: 1.5rem;
+}
+
+.calendar-wrapper .rdp-caption_label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4A4173;
+  font-family: 'Playfair Display', serif;
+}
+
+.calendar-wrapper .rdp-head_cell {
+  font-weight: 600;
+  color: #6B5B95;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-wrapper .rdp-day {
+  font-size: 1.1rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.calendar-wrapper .rdp-day:hover {
+  background: #F5F0FF;
+}
+
+.calendar-wrapper .rdp-day_selected {
+  background: #4A4173;
+  color: white;
+  font-weight: 600;
+}
+
+.events-section {
+  flex: 1;
+  min-width: 350px;
+}
+
+.events-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.events-list-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4A4173;
+  margin-bottom: 1rem;
 }
 
 .event-card {
@@ -375,6 +490,99 @@ h1, h2, h3, h4, h5, h6 {
 .event-description {
   color: #6B5B95;
   font-size: 0.9rem;
+}
+
+/* Day View */
+.day-view {
+  padding: 2rem;
+}
+
+.day-view-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.day-view-date {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #4A4173;
+  margin-bottom: 0.5rem;
+}
+
+.day-view-weekday {
+  font-size: 1.1rem;
+  color: #6B5B95;
+}
+
+.day-view-events {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Week View */
+.week-view {
+  padding: 2rem;
+}
+
+.week-view-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.week-view-range {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4A4173;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1rem;
+}
+
+.week-day-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 2px solid #F5F0FF;
+  min-height: 150px;
+}
+
+.week-day-header {
+  text-align: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #F5F0FF;
+  margin-bottom: 0.75rem;
+}
+
+.week-day-name {
+  font-size: 0.8rem;
+  color: #6B5B95;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.week-day-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4A4173;
+}
+
+.week-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.week-event-item {
+  background: linear-gradient(135deg, #F5F0FF 0%, #FAF7FF 100%);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid #4A4173;
+  font-size: 0.85rem;
+  color: #4A4173;
 }
 
 /* Form Styles */
@@ -432,5 +640,21 @@ h1, h2, h3, h4, h5, h6 {
   
   .page-title {
     font-size: 2rem;
+  }
+  
+  .calendar-main {
+    flex-direction: column;
+  }
+  
+  .week-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .brand-logo {
+    height: 35px;
+  }
+  
+  .brand-divider {
+    height: 35px;
   }
 }

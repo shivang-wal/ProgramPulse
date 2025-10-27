@@ -12,6 +12,12 @@ const Navigation = () => {
     <nav className="nav-bar">
       <div className="nav-container">
         <div className="nav-brand">
+          <img 
+            src="https://lucyrx.com/wp-content/uploads/2023/04/LucyRx_Logo_Purple.svg" 
+            alt="LucyRx Logo" 
+            className="brand-logo"
+          />
+          <div className="brand-divider"></div>
           <div>
             <h1 className="brand-title">ProgramPulse</h1>
             <div className="brand-tagline">keeping a pulse on all LucyRx initiatives</div>
