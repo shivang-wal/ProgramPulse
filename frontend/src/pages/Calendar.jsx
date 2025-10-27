@@ -33,6 +33,9 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
     <DialogContent data-testid="event-dialog">
       <DialogHeader>
         <DialogTitle>Add Event</DialogTitle>
+        <DialogDescription>
+          Create a new calendar event for release planning and milestone tracking
+        </DialogDescription>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="form-group">
