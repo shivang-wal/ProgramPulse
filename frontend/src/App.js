@@ -12,8 +12,10 @@ const Navigation = () => {
     <nav className="nav-bar">
       <div className="nav-container">
         <div className="nav-brand">
-          <span className="brand-icon">📊</span>
-          <h1 className="brand-title">Program Manager</h1>
+          <div>
+            <h1 className="brand-title">ProgramPulse</h1>
+            <div className="brand-tagline">keeping a pulse on all LucyRx initiatives</div>
+          </div>
         </div>
         <div className="nav-links">
           <Link 
