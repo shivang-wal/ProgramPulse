@@ -40,6 +40,9 @@ const ProjectDialog = ({ project, onClose, onSave }) => {
     <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="project-dialog">
       <DialogHeader>
         <DialogTitle>{project ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+        <DialogDescription>
+          {project ? 'Update project details and weekly sprint information' : 'Add a new project to track weekly sprint progress'}
+        </DialogDescription>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="form-group">
