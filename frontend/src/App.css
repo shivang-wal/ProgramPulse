@@ -333,16 +333,17 @@ h1, h2, h3, h4, h5, h6 {
 .calendar-container {
   background: white;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(74, 65, 115, 0.12);
   border: 2px solid rgba(184, 168, 217, 0.2);
+  min-height: 650px;
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .calendar-view-filters {
