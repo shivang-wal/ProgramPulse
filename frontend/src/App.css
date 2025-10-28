@@ -152,6 +152,66 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 12px rgba(74, 65, 115, 0.3);
 }
 
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+/* Export Buttons */
+.export-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn-pdf {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.export-btn-pdf:hover {
+  background: #dc2626;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.export-btn-excel {
+  color: #059669;
+  border-color: #059669;
+}
+
+.export-btn-excel:hover {
+  background: #059669;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+}
+
 .page-title {
   font-size: 2.5rem;
   font-weight: 700;
