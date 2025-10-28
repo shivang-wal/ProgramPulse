@@ -397,7 +397,7 @@ const MonthView = ({ currentMonth, events, onEventCreate, onEventDelete, selecte
 const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCategories, setSelectedCategories] = useState(new Set());
-  const [viewMode, setViewMode] = useState('week'); // day, week, month
+  const [viewMode, setViewMode] = useState('month'); // day, week, month
 
   const categories = [
     { name: 'General', color: '#667eea' },
