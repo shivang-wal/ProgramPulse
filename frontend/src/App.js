@@ -19,7 +19,7 @@ const Navigation = () => {
           />
           <div className="brand-divider"></div>
           <div>
-            <h1 className="brand-title">ProgramPulse</h1>
+            <h1 className="brand-title">Program Pulse</h1>
             <div className="brand-tagline">keeping a pulse on all LucyRx initiatives</div>
           </div>
         </div>
