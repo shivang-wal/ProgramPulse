@@ -618,6 +618,9 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Weekly Events Carousel */}
+      <WeeklyEventsCarousel />
+
       {projects.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📋</div>
