@@ -200,6 +200,221 @@ class ProgramManagementAPITester:
 
         return True
 
+    def test_calendar_event_delete_functionality(self):
+        """Test comprehensive calendar event delete functionality as requested"""
+        print("\n" + "="*50)
+        print("TESTING CALENDAR EVENT DELETE FUNCTIONALITY")
+        print("="*50)
+        
+        # 1. Delete Calendar Event - Success Case
+        print("\n🔍 Test 1: Delete Calendar Event - Success Case")
+        
+        # First, create a test event
+        event_data = {
+            "date": "2024-12-20",
+            "startTime": "14:00",
+            "endTime": "15:00",
+            "title": "Sprint Planning Meeting",
+            "description": "Planning session for next sprint",
+            "category": "Meeting",
+            "color": "#ff6b6b"
+        }
+        
+        success, response = self.run_test(
+            "Create Event for Delete Test",
+            "POST",
+            "events",
+            200,
+            data=event_data
+        )
+        
+        if not success or 'id' not in response:
+            print("❌ Failed to create event for delete test")
+            return False
+            
+        test_event_id = response['id']
+        print(f"   Created test event ID: {test_event_id}")
+        
+        # Delete the event
+        success, response = self.run_test(
+            "Delete Event (Success Case)",
+            "DELETE",
+            f"events/{test_event_id}",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Verify the response message
+        if response.get('message') != 'Event deleted successfully':
+            print(f"❌ Expected 'Event deleted successfully', got: {response.get('message')}")
+            return False
+        else:
+            print("✅ Delete response message verified")
+        
+        # Verify the event is actually deleted by fetching all events
+        success, all_events = self.run_test(
+            "Verify Event Deleted (Fetch All)",
+            "GET",
+            "events",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Check that our deleted event is not in the list
+        deleted_event_found = any(event.get('id') == test_event_id for event in all_events)
+        if deleted_event_found:
+            print(f"❌ Deleted event {test_event_id} still found in events list")
+            return False
+        else:
+            print("✅ Event successfully removed from database")
+        
+        # 2. Delete Calendar Event - Error Case
+        print("\n🔍 Test 2: Delete Calendar Event - Error Case")
+        
+        # Try to delete a non-existent event with a random UUID
+        import uuid
+        random_uuid = str(uuid.uuid4())
+        
+        success, response = self.run_test(
+            "Delete Non-existent Event",
+            "DELETE",
+            f"events/{random_uuid}",
+            404
+        )
+        
+        if not success:
+            return False
+            
+        # Verify error message
+        if 'Event not found' not in str(response.get('detail', '')):
+            print(f"❌ Expected 'Event not found' in error, got: {response}")
+            return False
+        else:
+            print("✅ Error message verified for non-existent event")
+        
+        # 3. Integration Test - Multiple Events
+        print("\n🔍 Test 3: Integration Test - Multiple Events")
+        
+        # Create multiple events
+        events_data = [
+            {
+                "date": "2024-12-21",
+                "startTime": "09:00",
+                "endTime": "10:00",
+                "title": "Daily Standup",
+                "description": "Team sync meeting",
+                "category": "Meeting",
+                "color": "#4ecdc4"
+            },
+            {
+                "date": "2024-12-21",
+                "startTime": "11:00",
+                "endTime": "12:00",
+                "title": "Code Review Session",
+                "description": "Review pull requests",
+                "category": "Development",
+                "color": "#45b7d1"
+            },
+            {
+                "date": "2024-12-22",
+                "startTime": "15:00",
+                "endTime": "16:00",
+                "title": "Client Demo",
+                "description": "Showcase new features",
+                "category": "Demo",
+                "color": "#96ceb4"
+            }
+        ]
+        
+        created_event_ids = []
+        
+        # Create all events
+        for i, event_data in enumerate(events_data):
+            success, response = self.run_test(
+                f"Create Event {i+1} for Integration Test",
+                "POST",
+                "events",
+                200,
+                data=event_data
+            )
+            
+            if not success or 'id' not in response:
+                print(f"❌ Failed to create event {i+1}")
+                return False
+                
+            created_event_ids.append(response['id'])
+            print(f"   Created event {i+1} ID: {response['id']}")
+        
+        # Verify all events were created
+        success, all_events = self.run_test(
+            "Verify All Events Created",
+            "GET",
+            "events",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        if len(all_events) < 3:
+            print(f"❌ Expected at least 3 events, found {len(all_events)}")
+            return False
+        
+        # Delete the middle event (Code Review Session)
+        event_to_delete = created_event_ids[1]
+        success, response = self.run_test(
+            "Delete Middle Event (Integration Test)",
+            "DELETE",
+            f"events/{event_to_delete}",
+            200
+        )
+        
+        if not success:
+            return False
+        
+        # Verify only that event is deleted and others remain
+        success, remaining_events = self.run_test(
+            "Verify Selective Deletion",
+            "GET",
+            "events",
+            200
+        )
+        
+        if not success:
+            return False
+        
+        # Check that deleted event is gone
+        deleted_event_found = any(event.get('id') == event_to_delete for event in remaining_events)
+        if deleted_event_found:
+            print(f"❌ Deleted event {event_to_delete} still found")
+            return False
+        
+        # Check that other events still exist
+        remaining_ids = [event.get('id') for event in remaining_events]
+        expected_remaining = [created_event_ids[0], created_event_ids[2]]
+        
+        for expected_id in expected_remaining:
+            if expected_id not in remaining_ids:
+                print(f"❌ Expected event {expected_id} not found in remaining events")
+                return False
+        
+        print("✅ Integration test passed - only selected event deleted, others remain")
+        
+        # Clean up remaining test events
+        for event_id in [created_event_ids[0], created_event_ids[2]]:
+            self.run_test(
+                f"Cleanup Event {event_id}",
+                "DELETE",
+                f"events/{event_id}",
+                200
+            )
+        
+        return True
+
     def test_error_cases(self):
         """Test error handling"""
         print("\n" + "="*50)
@@ -228,14 +443,6 @@ class ProgramManagementAPITester:
             "Delete Non-existent Project",
             "DELETE",
             "projects/non-existent-id",
-            404
-        )
-        
-        # Test DELETE non-existent event
-        success, response = self.run_test(
-            "Delete Non-existent Event",
-            "DELETE",
-            "events/non-existent-id",
             404
         )
 
