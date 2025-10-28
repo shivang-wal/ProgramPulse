@@ -343,7 +343,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .event-card-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 0.75rem;
 }
@@ -359,12 +359,6 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.5px;
 }
 
-.event-date {
-  color: #6B5B95;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
 .event-card-title {
   font-size: 1.15rem;
   font-weight: 600;
@@ -373,14 +367,30 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.4;
 }
 
+.event-card-datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(107, 91, 149, 0.08);
+  border-radius: 8px;
+  border-left: 3px solid #6B5B95;
+}
+
+.event-card-date {
+  color: #4A4173;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .event-card-time {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: #6B5B95;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  margin-bottom: 0.75rem;
 }
 
 .event-card-time svg {
