@@ -1156,6 +1156,22 @@ h1, h2, h3, h4, h5, h6 {
   .brand-tagline {
     font-size: 0.65rem;
   }
+  
+  .header-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .export-buttons {
+    margin-right: 0;
+    justify-content: center;
+  }
+  
+  .export-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
 
 @media (min-width: 1200px) {
