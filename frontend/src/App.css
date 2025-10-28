@@ -48,6 +48,9 @@ h1, h2, h3, h4, h5, h6 {
 .brand-logo {
   height: 32px;
   width: auto;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .brand-divider {
