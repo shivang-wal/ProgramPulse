@@ -322,7 +322,7 @@ const WeekView = ({ currentWeek, events, onEventCreate, onEventDelete, selectedC
 };
 
 // Month View Component
-const MonthView = ({ currentMonth, events, onEventCreate, selectedCategories }) => {
+const MonthView = ({ currentMonth, events, onEventCreate, onEventDelete, selectedCategories }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
@@ -366,8 +366,19 @@ const MonthView = ({ currentMonth, events, onEventCreate, selectedCategories }) 
                       className="month-event-item"
                       style={{ backgroundColor: event.color }}
                       title={`${event.title} (${event.startTime}-${event.endTime})`}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {event.title}
+                      <span className="month-event-title">{event.title}</span>
+                      <button
+                        className="month-event-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEventDelete(event.id);
+                        }}
+                        title="Delete event"
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   ))}
                   {dayEvents.length > 3 && (
