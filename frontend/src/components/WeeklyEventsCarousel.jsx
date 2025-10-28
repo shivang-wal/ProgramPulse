@@ -129,16 +129,18 @@ const WeeklyEventsCarousel = () => {
                   >
                     {event.category}
                   </div>
-                  <div className="event-date">
-                    {format(parseISO(event.date), 'EEE, MMM dd')}
-                  </div>
                 </div>
                 
                 <h3 className="event-card-title">{event.title}</h3>
                 
-                <div className="event-card-time">
-                  <Clock size={16} />
-                  <span>{event.startTime} - {event.endTime}</span>
+                <div className="event-card-datetime">
+                  <div className="event-card-date">
+                    {format(parseISO(event.date), 'EEE, MMM dd')}
+                  </div>
+                  <div className="event-card-time">
+                    <Clock size={16} />
+                    <span>{event.startTime} - {event.endTime}</span>
+                  </div>
                 </div>
                 
                 {event.description && (
