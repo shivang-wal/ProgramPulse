@@ -66,6 +66,7 @@ class CalendarEvent(BaseModel):
     title: str
     description: str = ""
     projectId: Optional[str] = None
+    color: str = "#667eea"  # Default purple color
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CalendarEventCreate(BaseModel):
@@ -73,6 +74,7 @@ class CalendarEventCreate(BaseModel):
     title: str
     description: str = ""
     projectId: Optional[str] = None
+    color: str = "#667eea"  # Default purple color
 
 class ProjectHistory(BaseModel):
     model_config = ConfigDict(extra="ignore")
