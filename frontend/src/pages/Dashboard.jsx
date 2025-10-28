@@ -117,7 +117,12 @@ const ProjectDialog = ({ project, onClose, onSave }) => {
     risks: project?.risks || '',
     escalation: project?.escalation || '',
     plannedNextWeek: project?.plannedNextWeek || '',
-    bugsCount: project?.bugsCount || 0,
+    bugs: {
+      critical: project?.bugs?.critical || 0,
+      high: project?.bugs?.high || 0,
+      medium: project?.bugs?.medium || 0,
+      low: project?.bugs?.low || 0,
+    },
   });
 
   const handleSubmit = async (e) => {
