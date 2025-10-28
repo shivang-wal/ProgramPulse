@@ -941,6 +941,15 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
   }
   
+  .calendar-wrapper .rdp {
+    --rdp-cell-size: 70px;
+  }
+  
+  .events-section {
+    min-width: auto;
+    max-width: 100%;
+  }
+  
   .week-grid {
     grid-template-columns: 1fr;
   }
@@ -959,5 +968,15 @@ h1, h2, h3, h4, h5, h6 {
   
   .brand-tagline {
     font-size: 0.65rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .calendar-wrapper .rdp {
+    --rdp-cell-size: 110px;
+  }
+  
+  .calendar-wrapper .rdp-caption_label {
+    font-size: 2rem;
   }
 }
