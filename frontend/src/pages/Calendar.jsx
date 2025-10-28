@@ -161,7 +161,7 @@ const EventDialog = ({ selectedDate, selectedTime, onClose, onSave }) => {
 };
 
 // Day View Component
-const DayView = ({ currentDate, events, onEventCreate, selectedCategories }) => {
+const DayView = ({ currentDate, events, onEventCreate, onEventDelete, selectedCategories }) => {
   const timeSlots = [];
   for (let hour = 7; hour <= 20; hour++) {
     timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
@@ -203,9 +203,22 @@ const DayView = ({ currentDate, events, onEventCreate, selectedCategories }) => 
                     className="event-block"
                     style={{ backgroundColor: event.color }}
                     title={`${event.title} (${event.startTime}-${event.endTime})`}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="event-title">{event.title}</div>
-                    <div className="event-time">{event.startTime}-{event.endTime}</div>
+                    <div className="event-content">
+                      <div className="event-title">{event.title}</div>
+                      <div className="event-time">{event.startTime}-{event.endTime}</div>
+                    </div>
+                    <button
+                      className="event-delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEventDelete(event.id);
+                      }}
+                      title="Delete event"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 ))}
               </div>
