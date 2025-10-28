@@ -276,8 +276,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .carousel-btn {
-  background: #F5F0FF;
-  border: none;
+  background: white;
+  border: 2px solid #4A4173;
   border-radius: 8px;
   padding: 0.5rem;
   cursor: pointer;
@@ -285,12 +285,12 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6B5B95;
+  color: #4A4173;
 }
 
 .carousel-btn:hover {
-  background: #E8DFF5;
-  color: #4A4173;
+  background: #4A4173;
+  color: white;
   transform: scale(1.05);
 }
 
