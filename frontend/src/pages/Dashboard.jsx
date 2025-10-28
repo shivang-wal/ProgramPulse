@@ -574,24 +574,46 @@ const Dashboard = () => {
             <h1 className="page-title">Project Dashboard</h1>
             <p className="page-subtitle">Manage all your LucyRx initiatives with weekly sprint tracking</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <button 
-                onClick={handleCreate} 
-                data-testid="create-project-button"
-                className="create-project-btn"
-              >
-                + Create Project
-              </button>
-            </DialogTrigger>
-            {dialogOpen && (
-              <ProjectDialog
-                project={editingProject}
-                onClose={handleDialogClose}
-                onSave={fetchProjects}
-              />
+          <div className="header-actions">
+            {projects.length > 0 && (
+              <div className="export-buttons">
+                <button 
+                  onClick={() => exportAllProjectsAsPDF(projects)} 
+                  className="export-btn export-btn-pdf"
+                  data-testid="export-all-pdf-button"
+                  title="Export All as PDF"
+                >
+                  📄 Export PDF
+                </button>
+                <button 
+                  onClick={() => exportProjectsAsExcel(projects)} 
+                  className="export-btn export-btn-excel"
+                  data-testid="export-excel-button"
+                  title="Export as Excel"
+                >
+                  📊 Export Excel
+                </button>
+              </div>
             )}
-          </Dialog>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <button 
+                  onClick={handleCreate} 
+                  data-testid="create-project-button"
+                  className="create-project-btn"
+                >
+                  + Create Project
+                </button>
+              </DialogTrigger>
+              {dialogOpen && (
+                <ProjectDialog
+                  project={editingProject}
+                  onClose={handleDialogClose}
+                  onSave={fetchProjects}
+                />
+              )}
+            </Dialog>
+          </div>
         </div>
       </div>
 
