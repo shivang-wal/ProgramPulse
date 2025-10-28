@@ -1,127 +1,157 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 // Generate PDF for a single project
 export const generateProjectPDF = (project) => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height;
-  
-  // Header
-  doc.setFillColor(74, 65, 115); // Purple header
-  doc.rect(0, 0, pageWidth, 40, 'F');
-  
-  // LucyRx branding
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
-  doc.text('Program Pulse', 20, 25);
-  doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
-  doc.text('keeping a pulse on all LucyRx initiatives', 20, 35);
-  
-  // Date
-  const currentDate = new Date().toLocaleDateString();
-  doc.text(`Generated: ${currentDate}`, pageWidth - 80, 25);
-  
-  // Project Title
-  doc.setTextColor(74, 65, 115);
-  doc.setFontSize(18);
-  doc.setFont(undefined, 'bold');
-  doc.text(project.name || 'Project Details', 20, 60);
-  
-  // Status Badge
-  const statusColors = {
-    'On Track': [16, 185, 129],
-    'At Risk': [245, 158, 11],
-    'Delayed': [239, 68, 68],
-    'Completed': [99, 102, 241]
-  };
-  
-  const statusColor = statusColors[project.status] || statusColors['On Track'];
-  doc.setFillColor(...statusColor);
-  doc.roundedRect(20, 70, 40, 12, 2, 2, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(10);
-  doc.text(project.status || 'On Track', 22, 78);
-  
-  // Project Details
-  let yPos = 100;
-  doc.setTextColor(74, 65, 115);
-  doc.setFontSize(12);
-  doc.setFont(undefined, 'bold');
-  
-  const sections = [
-    { title: 'Completed This Week', content: project.completedThisWeek },
-    { title: 'Risks', content: project.risks },
-    { title: 'Escalation', content: project.escalation },
-    { title: 'Planned Next Week', content: project.plannedNextWeek }
-  ];
-  
-  sections.forEach((section) => {
-    if (section.content && section.content.trim()) {
-      doc.text(section.title, 20, yPos);
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(10);
-      
-      const lines = doc.splitTextToSize(section.content, pageWidth - 40);
-      doc.text(lines, 20, yPos + 8);
-      yPos += 8 + (lines.length * 5) + 10;
-      
-      doc.setFont(undefined, 'bold');
-      doc.setFontSize(12);
-    }
-  });
-  
-  // Bug Severity Table
-  if (project.bugs) {
-    const bugs = project.bugs;
-    const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+  try {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
     
-    doc.text('Bug Severity Matrix', 20, yPos);
-    yPos += 15;
+    // Header
+    doc.setFillColor(74, 65, 115); // Purple header
+    doc.rect(0, 0, pageWidth, 40, 'F');
     
-    const tableData = [
-      ['Severity/Priority', '1-Critical', '2-High', '3-Medium', '4-Low', 'Total'],
-      ['Critical', bugs.critical.toString(), '0', '0', '0', bugs.critical.toString()],
-      ['High', '0', bugs.high.toString(), '0', '0', bugs.high.toString()],
-      ['Medium', '0', '0', bugs.medium.toString(), '0', bugs.medium.toString()],
-      ['Low', '0', '0', '0', bugs.low.toString(), bugs.low.toString()],
-      ['Total', bugs.critical.toString(), bugs.high.toString(), bugs.medium.toString(), bugs.low.toString(), totalBugs.toString()]
+    // LucyRx branding
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text('Program Pulse', 20, 25);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('keeping a pulse on all LucyRx initiatives', 20, 35);
+    
+    // Date
+    const currentDate = new Date().toLocaleDateString();
+    doc.text(`Generated: ${currentDate}`, pageWidth - 80, 25);
+    
+    // Project Title
+    doc.setTextColor(74, 65, 115);
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text(project.name || 'Project Details', 20, 60);
+    
+    // Status Badge
+    const statusColors = {
+      'On Track': [16, 185, 129],
+      'At Risk': [245, 158, 11],
+      'Delayed': [239, 68, 68],
+      'Completed': [99, 102, 241]
+    };
+    
+    const statusColor = statusColors[project.status] || statusColors['On Track'];
+    doc.setFillColor(...statusColor);
+    doc.roundedRect(20, 70, 40, 12, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text(project.status || 'On Track', 22, 78);
+    
+    // Project Details
+    let yPos = 100;
+    doc.setTextColor(74, 65, 115);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    
+    const sections = [
+      { title: 'Completed This Week', content: project.completedThisWeek },
+      { title: 'Risks', content: project.risks },
+      { title: 'Escalation', content: project.escalation },
+      { title: 'Planned Next Week', content: project.plannedNextWeek }
     ];
     
-    doc.autoTable({
-      head: [tableData[0]],
-      body: tableData.slice(1),
-      startY: yPos,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [245, 240, 255],
-        textColor: [74, 65, 115],
-        fontStyle: 'bold',
-        fontSize: 9
-      },
-      bodyStyles: {
-        fontSize: 9,
-        textColor: [74, 65, 115]
-      },
-      alternateRowStyles: {
-        fillColor: [250, 250, 250]
+    sections.forEach((section) => {
+      if (section.content && section.content.trim()) {
+        doc.text(section.title, 20, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        
+        const lines = doc.splitTextToSize(section.content, pageWidth - 40);
+        doc.text(lines, 20, yPos + 8);
+        yPos += 8 + (lines.length * 5) + 10;
+        
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(12);
       }
     });
+    
+    // Bug Severity Table - Use manual table creation instead of autoTable
+    if (project.bugs) {
+      const bugs = project.bugs;
+      const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+      
+      doc.text('Bug Severity Matrix', 20, yPos);
+      yPos += 20;
+      
+      // Manual table creation
+      const startX = 20;
+      const rowHeight = 12;
+      const colWidths = [35, 25, 25, 25, 25, 25];
+      
+      // Table header
+      doc.setFillColor(245, 240, 255);
+      doc.rect(startX, yPos, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+      
+      doc.setTextColor(74, 65, 115);
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'bold');
+      
+      let currentX = startX + 2;
+      const headers = ['Severity/Priority', '1-Critical', '2-High', '3-Medium', '4-Low', 'Total'];
+      headers.forEach((header, i) => {
+        doc.text(header, currentX, yPos + 8);
+        currentX += colWidths[i];
+      });
+      
+      yPos += rowHeight;
+      
+      // Table rows
+      const rows = [
+        ['Critical', bugs.critical.toString(), '0', '0', '0', bugs.critical.toString()],
+        ['High', '0', bugs.high.toString(), '0', '0', bugs.high.toString()],
+        ['Medium', '0', '0', bugs.medium.toString(), '0', bugs.medium.toString()],
+        ['Low', '0', '0', '0', bugs.low.toString(), bugs.low.toString()],
+        ['Total', bugs.critical.toString(), bugs.high.toString(), bugs.medium.toString(), bugs.low.toString(), totalBugs.toString()]
+      ];
+      
+      doc.setFont(undefined, 'normal');
+      
+      rows.forEach((row, rowIndex) => {
+        // Alternate row colors
+        if (rowIndex % 2 === 0) {
+          doc.setFillColor(250, 250, 250);
+          doc.rect(startX, yPos, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+        }
+        
+        currentX = startX + 2;
+        row.forEach((cell, colIndex) => {
+          if (colIndex === 0 || rowIndex === 4) { // First column or total row
+            doc.setFont(undefined, 'bold');
+          } else {
+            doc.setFont(undefined, 'normal');
+          }
+          doc.text(cell, currentX, yPos + 8);
+          currentX += colWidths[colIndex];
+        });
+        
+        yPos += rowHeight;
+      });
+    }
+    
+    // Footer
+    yPos += 20;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    doc.setTextColor(150, 150, 150);
+    doc.setFontSize(8);
+    doc.text('Generated by Program Pulse - LucyRx Project Management System', 20, yPos + 10);
+    
+    return doc;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw new Error('Failed to generate PDF: ' + error.message);
   }
-  
-  // Footer
-  const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : yPos + 20;
-  doc.setDrawColor(220, 220, 220);
-  doc.line(20, finalY, pageWidth - 20, finalY);
-  doc.setTextColor(150, 150, 150);
-  doc.setFontSize(8);
-  doc.text('Generated by Program Pulse - LucyRx Project Management System', 20, finalY + 10);
-  
-  return doc;
 };
 
 // Generate PDF for all projects
