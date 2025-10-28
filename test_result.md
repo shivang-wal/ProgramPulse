@@ -216,6 +216,8 @@ test_plan:
     - "Delete button in Calendar Day View"
     - "Delete button in Calendar Week View"
     - "Delete button in Calendar Month View"
+    - "Weekly Events Carousel Component"
+    - "Carousel Integration in Dashboard"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -225,3 +227,5 @@ agent_communication:
       message: "Implemented delete functionality for calendar events. Backend endpoint already existed. Added delete buttons to all three calendar views (Day, Week, Month) with Trash2 icons from lucide-react. Buttons appear on hover with smooth animations. Ready for comprehensive testing."
     - agent: "testing"
       message: "Backend calendar event delete functionality testing completed successfully. All requested test scenarios passed: success case (create->delete->verify), error case (404 for non-existent), and integration test (selective deletion). DELETE /api/events/{event_id} endpoint working correctly with proper response messages and database operations. Backend delete functionality is fully functional and ready for production use."
+    - agent: "main"
+      message: "Implemented Weekly Events Carousel on Dashboard. Created new WeeklyEventsCarousel component using Embla Carousel React. Fetches events from backend, filters for current week's events, displays them in a responsive carousel (3 cards on desktop, 2 on tablet, 1 on mobile). Features include auto-play with 4s delay, manual navigation buttons, event count badge, color-coded category badges, and empty state handling. Fully styled to match LucyRx branding. Ready for testing."
