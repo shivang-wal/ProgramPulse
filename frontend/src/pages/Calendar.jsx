@@ -493,6 +493,7 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
               currentDate={currentDate}
               events={events}
               onEventCreate={onEventCreate}
+              onEventDelete={onEventDelete}
               selectedCategories={selectedCategories}
             />
           )}
