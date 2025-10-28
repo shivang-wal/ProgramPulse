@@ -92,7 +92,7 @@ class ProjectHistory(BaseModel):
     risks: str = ""
     escalation: str = ""
     plannedNextWeek: str = ""
-    bugsCount: int = 0
+    bugs: BugSeverity = Field(default_factory=BugSeverity)
     updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
