@@ -272,7 +272,7 @@ const Dashboard = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 className="page-title">Project Dashboard</h1>
-            <p className="page-subtitle">Manage up to 5 projects with weekly sprint tracking</p>
+            <p className="page-subtitle">Manage all your LucyRx initiatives with weekly sprint tracking</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
