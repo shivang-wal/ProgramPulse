@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { exportProjectAsPDF, exportAllProjectsAsPDF, exportProjectsAsExcel } from '../utils/exportUtils';
+import WeeklyEventsCarousel from '../components/WeeklyEventsCarousel';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
