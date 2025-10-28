@@ -1,34 +1,51 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, isWithinInterval } from 'date-fns';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
+import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, addWeeks, subWeeks } from 'date-fns';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const EventDialog = ({ selectedDate, onClose, onSave }) => {
+const EventDialog = ({ selectedDate, selectedTime, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '',
+    startTime: selectedTime || '09:00',
+    endTime: selectedTime ? 
+      `${(parseInt(selectedTime.split(':')[0]) + 1).toString().padStart(2, '0')}:${selectedTime.split(':')[1]}` 
+      : '10:00',
     title: '',
     description: '',
+    category: 'General',
     color: '#667eea',
   });
 
-  const eventColors = [
-    { name: 'Purple', value: '#667eea' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Green', value: '#10b981' },
-    { name: 'Red', value: '#ef4444' },
-    { name: 'Orange', value: '#f97316' },
-    { name: 'Pink', value: '#ec4899' },
-    { name: 'Teal', value: '#14b8a6' },
-    { name: 'Indigo', value: '#6366f1' },
+  const eventCategories = [
+    { name: 'General', value: 'General', color: '#667eea' },
+    { name: 'Sprint Planning', value: 'Sprint Planning', color: '#3b82f6' },
+    { name: 'Reviews & Demos', value: 'Reviews & Demos', color: '#10b981' },
+    { name: 'Team Meetings', value: 'Team Meetings', color: '#ef4444' },
+    { name: 'Client Calls', value: 'Client Calls', color: '#f59e0b' },
+    { name: 'Development', value: 'Development', color: '#8b5cf6' },
+    { name: 'Testing', value: 'Testing', color: '#06b6d4' },
+    { name: 'Releases', value: 'Releases', color: '#84cc16' },
   ];
+
+  const timeSlots = [];
+  for (let hour = 7; hour <= 20; hour++) {
+    timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+    timeSlots.push(`${hour.toString().padStart(2, '0')}:30`);
+  }
+
+  const handleCategoryChange = (category) => {
+    const categoryData = eventCategories.find(c => c.value === category);
+    setFormData({
+      ...formData,
+      category,
+      color: categoryData?.color || '#667eea'
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,9 +63,9 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
   return (
     <DialogContent data-testid="event-dialog">
       <DialogHeader>
-        <DialogTitle>Add Event</DialogTitle>
+        <DialogTitle>Add Scheduled Event</DialogTitle>
         <DialogDescription>
-          Create a new calendar event for release planning and milestone tracking
+          Schedule a new event with specific time slots for project management
         </DialogDescription>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,6 +81,35 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
           />
         </div>
 
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">Start Time</label>
+            <select
+              className="form-select"
+              value={formData.startTime}
+              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+              data-testid="event-start-time"
+            >
+              {timeSlots.map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">End Time</label>
+            <select
+              className="form-select"
+              value={formData.endTime}
+              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+              data-testid="event-end-time"
+            >
+              {timeSlots.map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="form-group">
           <label className="form-label">Title</label>
           <input
@@ -77,6 +123,20 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
         </div>
 
         <div className="form-group">
+          <label className="form-label">Category</label>
+          <select
+            className="form-select"
+            value={formData.category}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            data-testid="event-category-select"
+          >
+            {eventCategories.map(cat => (
+              <option key={cat.value} value={cat.value}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
           <label className="form-label">Description</label>
           <textarea
             className="form-textarea"
@@ -84,25 +144,6 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             data-testid="event-description-input"
           />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Event Color</label>
-          <div className="color-picker-grid">
-            {eventColors.map((color) => (
-              <button
-                key={color.value}
-                type="button"
-                className={`color-picker-option ${formData.color === color.value ? 'selected' : ''}`}
-                style={{ backgroundColor: color.value }}
-                onClick={() => setFormData({ ...formData, color: color.value })}
-                title={color.name}
-                data-testid={`color-${color.value}`}
-              >
-                {formData.color === color.value && <span className="color-check">✓</span>}
-              </button>
-            ))}
-          </div>
         </div>
 
         <div className="flex gap-2 justify-end">
@@ -118,241 +159,150 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
   );
 };
 
-const WeeklyEventsCarousel = ({ events, onDelete }) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 4000 })]);
+const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [selectedCategories, setSelectedCategories] = useState(new Set());
 
-  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
-  const scrollNext = () => emblaApi && emblaApi.scrollNext();
-
-  if (events.length === 0) {
-    return (
-      <div className="weekly-events-empty">
-        <p>No events scheduled for this week</p>
-      </div>
-    );
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
+  const weekDays = [];
+  
+  for (let i = 0; i < 7; i++) {
+    weekDays.push(addDays(weekStart, i));
   }
 
+  const timeSlots = [];
+  for (let hour = 7; hour <= 20; hour++) {
+    timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+  }
+
+  const categories = [
+    { name: 'General', color: '#667eea' },
+    { name: 'Sprint Planning', color: '#3b82f6' },
+    { name: 'Reviews & Demos', color: '#10b981' },
+    { name: 'Team Meetings', color: '#ef4444' },
+    { name: 'Client Calls', color: '#f59e0b' },
+    { name: 'Development', color: '#8b5cf6' },
+    { name: 'Testing', color: '#06b6d4' },
+    { name: 'Releases', color: '#84cc16' },
+  ];
+
+  const filteredEvents = events.filter(event => {
+    if (selectedCategories.size === 0) return true;
+    return selectedCategories.has(event.category);
+  });
+
+  const getEventsForDateAndTime = (date, timeSlot) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return filteredEvents.filter(event => {
+      if (event.date !== dateStr) return false;
+      const eventStart = event.startTime || '09:00';
+      const eventEnd = event.endTime || '10:00';
+      return eventStart <= timeSlot && eventEnd > timeSlot;
+    });
+  };
+
+  const toggleCategory = (categoryName) => {
+    const newSelected = new Set(selectedCategories);
+    if (newSelected.has(categoryName)) {
+      newSelected.delete(categoryName);
+    } else {
+      newSelected.add(categoryName);
+    }
+    setSelectedCategories(newSelected);
+  };
+
+  const handleTimeSlotClick = (date, timeSlot) => {
+    onEventCreate(date, timeSlot);
+  };
+
+  const previousWeek = () => {
+    setCurrentWeek(subWeeks(currentWeek, 1));
+  };
+
+  const nextWeek = () => {
+    setCurrentWeek(addWeeks(currentWeek, 1));
+  };
+
   return (
-    <div className="weekly-events-carousel-container">
-      <h3 className="carousel-title">This Week's Events ({events.length})</h3>
-      <div className="embla" ref={emblaRef}>
-        <div className="embla__container">
-          {events.map((event) => (
-            <div key={event.id} className="embla__slide" data-testid={`carousel-event-${event.id}`}>
-              <div className="carousel-event-card" style={{ borderLeftColor: event.color || '#4A4173' }}>
-                <div className="carousel-event-header">
-                  <div className="carousel-event-date">
-                    {format(parseISO(event.date), 'EEEE, MMM dd')}
-                  </div>
-                  <div className="carousel-event-color-dot" style={{ backgroundColor: event.color || '#4A4173' }}></div>
-                  <button
-                    className="icon-button"
-                    onClick={() => onDelete(event.id)}
-                    data-testid={`delete-carousel-event-${event.id}`}
-                  >
-                    🗑️
-                  </button>
-                </div>
-                <h4 className="carousel-event-title">{event.title}</h4>
-                {event.description && (
-                  <p className="carousel-event-description">{event.description}</p>
-                )}
-              </div>
+    <div className="schedule-calendar">
+      {/* Category Sidebar */}
+      <div className="schedule-sidebar">
+        <h3 className="sidebar-title">Event Categories</h3>
+        <div className="category-filters">
+          {categories.map(category => (
+            <div 
+              key={category.name}
+              className={`category-item ${selectedCategories.has(category.name) ? 'active' : ''}`}
+              onClick={() => toggleCategory(category.name)}
+              style={{ '--category-color': category.color }}
+            >
+              <div className="category-dot" style={{ backgroundColor: category.color }}></div>
+              <span className="category-name">{category.name}</span>
             </div>
           ))}
         </div>
       </div>
-      {events.length > 1 && (
-        <div className="embla__controls">
-          <button className="embla__button embla__button--prev" onClick={scrollPrev} data-testid="carousel-prev">
-            ←
+
+      {/* Main Calendar */}
+      <div className="schedule-main">
+        {/* Week Navigation */}
+        <div className="week-nav">
+          <button className="nav-btn" onClick={previousWeek} data-testid="prev-week">
+            ← Previous
           </button>
-          <button className="embla__button embla__button--next" onClick={scrollNext} data-testid="carousel-next">
-            →
+          <h2 className="week-title">
+            {format(weekStart, 'MMM dd')} - {format(weekEnd, 'MMM dd, yyyy')}
+          </h2>
+          <button className="nav-btn" onClick={nextWeek} data-testid="next-week">
+            Next →
           </button>
         </div>
-      )}
-    </div>
-  );
-};
 
-const DayView = ({ date, events, onDelete }) => {
-  const dayEvents = events.filter(event => isSameDay(parseISO(event.date), date));
-  
-  return (
-    <div className="day-view">
-      <div className="day-view-header">
-        <div className="day-view-date" data-testid="day-view-date">{format(date, 'MMMM dd, yyyy')}</div>
-        <div className="day-view-weekday">{format(date, 'EEEE')}</div>
-      </div>
-      
-      <div className="day-view-events">
-        {dayEvents.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#6B5B95' }}>
-            No events scheduled for this day
+        {/* Calendar Grid */}
+        <div className="schedule-grid">
+          {/* Header with days */}
+          <div className="grid-header">
+            <div className="time-header">Time</div>
+            {weekDays.map(day => (
+              <div key={day.toISOString()} className="day-header">
+                <div className="day-name">{format(day, 'EEE')}</div>
+                <div className="day-number">{format(day, 'd')}</div>
+              </div>
+            ))}
           </div>
-        ) : (
-          dayEvents.map((event) => (
-            <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`} style={{ borderLeftColor: event.color || '#4A4173' }}>
-              <div className="event-info">
-                <div className="event-title" data-testid="event-title" style={{ color: event.color || '#4A4173' }}>{event.title}</div>
-                {event.description && (
-                  <div className="event-description" data-testid="event-description">{event.description}</div>
-                )}
+
+          {/* Time slots grid */}
+          <div className="grid-body">
+            {timeSlots.map(timeSlot => (
+              <div key={timeSlot} className="time-row">
+                <div className="time-label">{timeSlot}</div>
+                {weekDays.map(day => {
+                  const dayEvents = getEventsForDateAndTime(day, timeSlot);
+                  return (
+                    <div 
+                      key={`${day.toISOString()}-${timeSlot}`}
+                      className="time-slot"
+                      onClick={() => handleTimeSlotClick(day, timeSlot)}
+                      data-testid={`slot-${format(day, 'yyyy-MM-dd')}-${timeSlot}`}
+                    >
+                      {dayEvents.map(event => (
+                        <div
+                          key={event.id}
+                          className="event-block"
+                          style={{ backgroundColor: event.color }}
+                          title={`${event.title} (${event.startTime}-${event.endTime})`}
+                        >
+                          <div className="event-title">{event.title}</div>
+                          <div className="event-time">{event.startTime}-{event.endTime}</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
-              <button
-                className="icon-button"
-                onClick={() => onDelete(event.id)}
-                data-testid="delete-event-button"
-              >
-                🗑️
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-};
-
-const WeekView = ({ date, events, onDelete }) => {
-  const weekStart = startOfWeek(date, { weekStartsOn: 0 });
-  const weekEnd = endOfWeek(date, { weekStartsOn: 0 });
-  const days = [];
-  
-  for (let i = 0; i < 7; i++) {
-    days.push(addDays(weekStart, i));
-  }
-
-  // Get events for this week for the carousel
-  const weekEvents = events.filter(event => {
-    const eventDate = parseISO(event.date);
-    return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
-  }).sort((a, b) => new Date(a.date) - new Date(b.date));
-  
-  return (
-    <div className="week-view">
-      <div className="week-view-header">
-        <div className="week-view-range" data-testid="week-view-range">
-          {format(weekStart, 'MMM dd')} - {format(weekEnd, 'MMM dd, yyyy')}
-        </div>
-      </div>
-
-      {/* Weekly Events Carousel */}
-      <div style={{ marginBottom: '2rem' }}>
-        <WeeklyEventsCarousel events={weekEvents} onDelete={onDelete} />
-      </div>
-      
-      <div className="week-grid">
-        {days.map((day) => {
-          const dayEvents = events.filter(event => isSameDay(parseISO(event.date), day));
-          
-          return (
-            <div key={day.toString()} className="week-day-card" data-testid={`week-day-${format(day, 'yyyy-MM-dd')}`}>
-              <div className="week-day-header">
-                <div className="week-day-name">{format(day, 'EEE')}</div>
-                <div className="week-day-number">{format(day, 'd')}</div>
-              </div>
-              <div className="week-day-events">
-                {dayEvents.map((event) => (
-                  <div 
-                    key={event.id} 
-                    className="week-event-item" 
-                    data-testid={`week-event-${event.id}`}
-                    title={event.description}
-                    style={{ 
-                      borderLeftColor: event.color || '#4A4173',
-                      background: `linear-gradient(135deg, ${event.color || '#4A4173'}15 0%, ${event.color || '#4A4173'}08 100%)`
-                    }}
-                  >
-                    {event.title}
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-const MonthView = ({ date, events, onDateSelect, onDelete }) => {
-  const eventsByDate = events.reduce((acc, event) => {
-    if (!acc[event.date]) {
-      acc[event.date] = [];
-    }
-    acc[event.date].push(event);
-    return acc;
-  }, {});
-
-  const modifiers = {
-    hasEvent: (date) => {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      return eventsByDate[dateStr] && eventsByDate[dateStr].length > 0;
-    },
-  };
-
-  const modifiersStyles = {
-    hasEvent: {
-      backgroundColor: '#F5F0FF',
-      borderRadius: '8px',
-      fontWeight: 'bold',
-    },
-  };
-
-  const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  return (
-    <div className="calendar-main">
-      <div className="calendar-section">
-        <div className="calendar-wrapper">
-          <CalendarComponent
-            mode="single"
-            selected={date}
-            onSelect={onDateSelect}
-            modifiers={modifiers}
-            modifiersStyles={modifiersStyles}
-            className="border rounded-lg p-4"
-            data-testid="calendar-component"
-          />
-        </div>
-      </div>
-      
-      <div className="events-section">
-        <div className="events-list">
-          <h3 className="events-list-header">
-            Upcoming Events ({events.length})
-          </h3>
-          {sortedEvents.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6c757d' }}>
-              No events scheduled. Click on a date to add one.
-            </div>
-          ) : (
-            sortedEvents.map((event) => (
-              <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`} style={{ borderLeftColor: event.color || '#4A4173' }}>
-                <div className="event-info">
-                  <div className="event-date" data-testid="event-date">
-                    {format(new Date(event.date), 'MMMM dd, yyyy')}
-                  </div>
-                  <div className="event-title" data-testid="event-title" style={{ color: event.color || '#4A4173' }}>{event.title}</div>
-                  {event.description && (
-                    <div className="event-description" data-testid="event-description">{event.description}</div>
-                  )}
-                </div>
-                <div className="event-actions">
-                  <div className="event-color-indicator" style={{ backgroundColor: event.color || '#4A4173' }}></div>
-                  <button
-                    className="icon-button"
-                    onClick={() => onDelete(event.id)}
-                    data-testid="delete-event-button"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -362,9 +312,8 @@ const MonthView = ({ date, events, onDateSelect, onDelete }) => {
 const Calendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month'); // day, week, month
 
   const fetchEvents = async () => {
     try {
@@ -380,14 +329,10 @@ const Calendar = () => {
     fetchEvents();
   }, []);
 
-  const handleDateSelect = (newDate) => {
-    if (newDate) {
-      setDate(newDate);
-      if (viewMode === 'month') {
-        setSelectedDate(newDate);
-        setDialogOpen(true);
-      }
-    }
+  const handleEventCreate = (date, time) => {
+    setSelectedDate(date);
+    setSelectedTime(time);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -406,56 +351,34 @@ const Calendar = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Release Calendar</h1>
-        <p className="page-subtitle">Track important dates and milestones with color-coded events</p>
-      </div>
-
-      <div className="calendar-container">
-        <div className="calendar-header">
-          <div className="calendar-view-filters">
-            <button 
-              className={`view-filter-btn ${viewMode === 'day' ? 'active' : ''}`}
-              onClick={() => setViewMode('day')}
-              data-testid="view-day-button"
-            >
-              Day
-            </button>
-            <button 
-              className={`view-filter-btn ${viewMode === 'week' ? 'active' : ''}`}
-              onClick={() => setViewMode('week')}
-              data-testid="view-week-button"
-            >
-              Week
-            </button>
-            <button 
-              className={`view-filter-btn ${viewMode === 'month' ? 'active' : ''}`}
-              onClick={() => setViewMode('month')}
-              data-testid="view-month-button"
-            >
-              Month
-            </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 className="page-title">Release Calendar</h1>
+            <p className="page-subtitle">Schedule events and milestones with time slots</p>
           </div>
-          
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => { setSelectedDate(new Date()); setDialogOpen(true); }} data-testid="add-event-button">
+              <Button onClick={() => handleEventCreate(new Date(), '09:00')} data-testid="add-event-button">
                 + Add Event
               </Button>
             </DialogTrigger>
             {dialogOpen && (
               <EventDialog
                 selectedDate={selectedDate}
+                selectedTime={selectedTime}
                 onClose={() => setDialogOpen(false)}
                 onSave={fetchEvents}
               />
             )}
           </Dialog>
         </div>
-
-        {viewMode === 'day' && <DayView date={date} events={events} onDelete={handleDelete} />}
-        {viewMode === 'week' && <WeekView date={date} events={events} onDelete={handleDelete} />}
-        {viewMode === 'month' && <MonthView date={date} events={events} onDateSelect={handleDateSelect} onDelete={handleDelete} />}
       </div>
+
+      <ScheduleCalendar
+        events={events}
+        onEventCreate={handleEventCreate}
+        onEventDelete={handleDelete}
+      />
     </div>
   );
 };
