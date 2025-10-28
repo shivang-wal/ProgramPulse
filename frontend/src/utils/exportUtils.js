@@ -364,7 +364,12 @@ export const exportProjectsAsExcel = (projects) => {
   const statusWs = XLSX.utils.json_to_sheet(statusData);
   XLSX.utils.book_append_sheet(wb, statusWs, 'Status Summary');
   
-  // Save file
-  const fileName = `program_pulse_export_${new Date().toISOString().split('T')[0]}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+    // Save file
+    const fileName = `program_pulse_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    console.log('Excel export successful:', fileName);
+  } catch (error) {
+    console.error('Failed to export as Excel:', error);
+    alert('Failed to generate Excel file: ' + error.message);
+  }
 };
