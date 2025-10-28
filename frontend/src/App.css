@@ -383,20 +383,35 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .calendar-section {
-  flex: 2;
+  flex: 3;
   display: flex;
   justify-content: center;
 }
 
 .calendar-wrapper {
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
 }
 
 .calendar-wrapper .rdp {
-  --rdp-cell-size: 80px;
+  --rdp-cell-size: 100px;
   --rdp-accent-color: #4A4173;
   margin: 0;
+  width: 100%;
+}
+
+.calendar-wrapper .rdp-months {
+  justify-content: center;
+  width: 100%;
+}
+
+.calendar-wrapper .rdp-month {
+  width: 100%;
+}
+
+.calendar-wrapper .rdp-table {
+  width: 100%;
+  margin: 0 auto;
 }
 
 .calendar-wrapper .rdp-months {
