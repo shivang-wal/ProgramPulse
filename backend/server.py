@@ -129,13 +129,33 @@ async def update_project(project_id: str, input: ProjectUpdate):
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
     
+    # Get the current project state before updating
+    current_project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    
+    if not current_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Save current state to history before updating
+    history_entry = ProjectHistory(
+        projectId=current_project['id'],
+        projectName=current_project['name'],
+        status=current_project['status'],
+        completedThisWeek=current_project.get('completedThisWeek', ''),
+        risks=current_project.get('risks', ''),
+        escalation=current_project.get('escalation', ''),
+        plannedNextWeek=current_project.get('plannedNextWeek', ''),
+        bugsCount=current_project.get('bugsCount', 0)
+    )
+    
+    history_doc = history_entry.model_dump()
+    history_doc['updatedAt'] = history_doc['updatedAt'].isoformat()
+    await db.project_history.insert_one(history_doc)
+    
+    # Now update the project
     result = await db.projects.update_one(
         {"id": project_id},
         {"$set": update_data}
     )
-    
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Project not found")
     
     updated_project = await db.projects.find_one({"id": project_id}, {"_id": 0})
     if isinstance(updated_project.get('createdAt'), str):
