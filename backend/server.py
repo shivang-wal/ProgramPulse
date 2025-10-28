@@ -170,7 +170,24 @@ async def delete_project(project_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Project not found")
     
+    # Also delete project history
+    await db.project_history.delete_many({"projectId": project_id})
+    
     return {"message": "Project deleted successfully"}
+
+@api_router.get("/projects/{project_id}/history", response_model=List[ProjectHistory])
+async def get_project_history(project_id: str):
+    """Get the update history for a specific project"""
+    history = await db.project_history.find(
+        {"projectId": project_id}, 
+        {"_id": 0}
+    ).sort("updatedAt", -1).to_list(1000)
+    
+    for entry in history:
+        if isinstance(entry.get('updatedAt'), str):
+            entry['updatedAt'] = datetime.fromisoformat(entry['updatedAt'])
+    
+    return history
 
 
 # Calendar Event Routes
