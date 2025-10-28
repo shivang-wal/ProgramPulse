@@ -533,6 +533,229 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 
+/* Scheduling Calendar */
+.schedule-calendar {
+  display: flex;
+  height: 700px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(74, 65, 115, 0.12);
+  border: 2px solid rgba(184, 168, 217, 0.2);
+  overflow: hidden;
+}
+
+.schedule-sidebar {
+  width: 250px;
+  background: #F8F9FA;
+  border-right: 2px solid #E0D5F0;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4A4173;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #E0D5F0;
+}
+
+.category-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.category-item:hover {
+  background: rgba(74, 65, 115, 0.05);
+  border-color: rgba(74, 65, 115, 0.2);
+}
+
+.category-item.active {
+  background: rgba(74, 65, 115, 0.1);
+  border-color: var(--category-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.category-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.category-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4A4173;
+}
+
+.schedule-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.week-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 2px solid #F0F0F0;
+}
+
+.nav-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 2px solid #4A4173;
+  background: white;
+  color: #4A4173;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: #4A4173;
+  color: white;
+}
+
+.week-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4A4173;
+}
+
+.schedule-grid {
+  flex: 1;
+  overflow: auto;
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  border-bottom: 2px solid #E0D5F0;
+  background: #F5F0FF;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.time-header {
+  padding: 1rem;
+  font-weight: 600;
+  color: #4A4173;
+  text-align: center;
+  border-right: 1px solid #E0D5F0;
+}
+
+.day-header {
+  padding: 1rem;
+  text-align: center;
+  border-right: 1px solid #E0D5F0;
+}
+
+.day-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6B5B95;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.day-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4A4173;
+  margin-top: 0.25rem;
+}
+
+.grid-body {
+  background: white;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  border-bottom: 1px solid #F0F0F0;
+  min-height: 60px;
+}
+
+.time-label {
+  padding: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6B5B95;
+  text-align: center;
+  border-right: 1px solid #E0D5F0;
+  background: #FAFAFA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-slot {
+  border-right: 1px solid #F0F0F0;
+  border-bottom: 1px solid #F5F5F5;
+  cursor: pointer;
+  position: relative;
+  padding: 2px;
+  transition: all 0.2s ease;
+}
+
+.time-slot:hover {
+  background: rgba(74, 65, 115, 0.05);
+}
+
+.event-block {
+  background: #667eea;
+  color: white;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin: 1px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-time {
+  font-size: 0.65rem;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+/* Form Row Layout */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .calendar-view-filters {
   display: flex;
   gap: 0.5rem;
