@@ -3,9 +3,111 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { format } from 'date-fns';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const ProjectHistoryDialog = ({ project, onClose }) => {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await axios.get(`${API}/projects/${project.id}/history`);
+        setHistory(response.data);
+      } catch (error) {
+        toast.error('Failed to load project history');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (project) {
+      fetchHistory();
+    }
+  }, [project]);
+
+  return (
+    <DialogContent className="max-w-4xl max-h-[90vh]" data-testid="history-dialog">
+      <DialogHeader>
+        <DialogTitle>Project Update History - {project.name}</DialogTitle>
+        <DialogDescription>
+          View all previous weekly updates for this project
+        </DialogDescription>
+      </DialogHeader>
+      
+      <ScrollArea className="h-[600px] pr-4">
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Loading history...</div>
+        ) : history.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No update history yet. History will be saved when you update this project.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {history.map((entry, index) => (
+              <div key={entry.id} className="history-entry" data-testid={`history-entry-${index}`}>
+                <div className="history-header">
+                  <div className="history-date">
+                    {format(new Date(entry.updatedAt), 'MMMM dd, yyyy - h:mm a')}
+                  </div>
+                  <span className={`status-badge status-${entry.status.toLowerCase().replace(' ', '-')}`}>
+                    {entry.status}
+                  </span>
+                </div>
+                
+                <div className="history-content">
+                  {entry.completedThisWeek && (
+                    <div className="history-section">
+                      <div className="history-label">Completed This Week</div>
+                      <div className="history-text">{entry.completedThisWeek}</div>
+                    </div>
+                  )}
+                  
+                  {entry.risks && (
+                    <div className="history-section">
+                      <div className="history-label">Risks</div>
+                      <div className="history-text">{entry.risks}</div>
+                    </div>
+                  )}
+                  
+                  {entry.escalation && (
+                    <div className="history-section">
+                      <div className="history-label">Escalation</div>
+                      <div className="history-text">{entry.escalation}</div>
+                    </div>
+                  )}
+                  
+                  {entry.plannedNextWeek && (
+                    <div className="history-section">
+                      <div className="history-label">Planned Next Week</div>
+                      <div className="history-text">{entry.plannedNextWeek}</div>
+                    </div>
+                  )}
+                  
+                  <div className="history-section">
+                    <div className="history-label">Bugs Count</div>
+                    <div className="history-text">{entry.bugsCount}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+      
+      <div className="flex justify-end mt-4">
+        <Button variant="outline" onClick={onClose} data-testid="close-history-button">
+          Close
+        </Button>
+      </div>
+    </DialogContent>
+  );
+};
 
 const ProjectDialog = ({ project, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -137,7 +239,7 @@ const ProjectDialog = ({ project, onClose, onSave }) => {
   );
 };
 
-const ProjectCard = ({ project, onEdit, onDelete }) => {
+const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
   const getStatusClass = (status) => {
     const statusMap = {
       'On Track': 'status-on-track',
@@ -158,6 +260,14 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
           </span>
         </div>
         <div className="project-actions">
+          <button 
+            className="icon-button" 
+            onClick={() => onViewHistory(project)} 
+            data-testid="view-history-button"
+            title="View History"
+          >
+            📅
+          </button>
           <button className="icon-button" onClick={() => onEdit(project)} data-testid="edit-project-button">
             ✏️
           </button>
@@ -209,7 +319,9 @@ const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [viewingHistoryProject, setViewingHistoryProject] = useState(null);
 
   const fetchProjects = async () => {
     try {
@@ -237,6 +349,11 @@ const Dashboard = () => {
     setDialogOpen(true);
   };
 
+  const handleViewHistory = (project) => {
+    setViewingHistoryProject(project);
+    setHistoryDialogOpen(true);
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
@@ -253,6 +370,11 @@ const Dashboard = () => {
   const handleDialogClose = () => {
     setDialogOpen(false);
     setEditingProject(null);
+  };
+
+  const handleHistoryDialogClose = () => {
+    setHistoryDialogOpen(false);
+    setViewingHistoryProject(null);
   };
 
   if (loading) {
@@ -305,10 +427,21 @@ const Dashboard = () => {
               project={project}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onViewHistory={handleViewHistory}
             />
           ))}
         </div>
       )}
+
+      {/* History Dialog */}
+      <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+        {historyDialogOpen && viewingHistoryProject && (
+          <ProjectHistoryDialog
+            project={viewingHistoryProject}
+            onClose={handleHistoryDialogClose}
+          />
+        )}
+      </Dialog>
     </div>
   );
 };
