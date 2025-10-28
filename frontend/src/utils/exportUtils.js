@@ -287,32 +287,39 @@ export const exportAllProjectsAsPDF = (projects) => {
 
 // Export projects as Excel
 export const exportProjectsAsExcel = (projects) => {
-  // Create workbook
-  const wb = XLSX.utils.book_new();
-  
-  // Projects Summary Sheet
-  const summaryData = projects.map(project => {
-    const bugs = project.bugs || { critical: 0, high: 0, medium: 0, low: 0 };
-    const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+  try {
+    console.log('Exporting projects as Excel:', projects.length);
+    if (!projects || projects.length === 0) {
+      alert('No projects to export');
+      return;
+    }
     
-    return {
-      'Project Name': project.name || 'Unnamed Project',
-      'Status': project.status || 'Unknown',
-      'Completed This Week': project.completedThisWeek || '',
-      'Risks': project.risks || '',
-      'Escalation': project.escalation || '',
-      'Planned Next Week': project.plannedNextWeek || '',
-      'Total Bugs': totalBugs,
-      'Critical Bugs': bugs.critical,
-      'High Bugs': bugs.high,
-      'Medium Bugs': bugs.medium,
-      'Low Bugs': bugs.low,
-      'Created Date': project.createdAt ? new Date(project.createdAt).toLocaleDateString() : ''
-    };
-  });
-  
-  const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-  XLSX.utils.book_append_sheet(wb, summaryWs, 'Projects Summary');
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Projects Summary Sheet
+    const summaryData = projects.map(project => {
+      const bugs = project.bugs || { critical: 0, high: 0, medium: 0, low: 0 };
+      const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+      
+      return {
+        'Project Name': project.name || 'Unnamed Project',
+        'Status': project.status || 'Unknown',
+        'Completed This Week': project.completedThisWeek || '',
+        'Risks': project.risks || '',
+        'Escalation': project.escalation || '',
+        'Planned Next Week': project.plannedNextWeek || '',
+        'Total Bugs': totalBugs,
+        'Critical Bugs': bugs.critical,
+        'High Bugs': bugs.high,
+        'Medium Bugs': bugs.medium,
+        'Low Bugs': bugs.low,
+        'Created Date': project.createdAt ? new Date(project.createdAt).toLocaleDateString() : ''
+      };
+    });
+    
+    const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, summaryWs, 'Projects Summary');
   
   // Bug Details Sheet
   const bugDetails = [];
