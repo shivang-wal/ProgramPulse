@@ -220,15 +220,65 @@ const ProjectDialog = ({ project, onClose, onSave }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Bugs Count</label>
-          <input
-            type="number"
-            className="form-input"
-            value={formData.bugsCount}
-            onChange={(e) => setFormData({ ...formData, bugsCount: parseInt(e.target.value) || 0 })}
-            min="0"
-            data-testid="bugs-count-input"
-          />
+          <label className="form-label">Bug Severity Breakdown</label>
+          <div className="bugs-severity-grid">
+            <div className="severity-input-group">
+              <label className="severity-label">Critical</label>
+              <input
+                type="number"
+                className="form-input-small"
+                value={formData.bugs.critical}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  bugs: { ...formData.bugs, critical: parseInt(e.target.value) || 0 }
+                })}
+                min="0"
+                data-testid="bugs-critical-input"
+              />
+            </div>
+            <div className="severity-input-group">
+              <label className="severity-label">High</label>
+              <input
+                type="number"
+                className="form-input-small"
+                value={formData.bugs.high}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  bugs: { ...formData.bugs, high: parseInt(e.target.value) || 0 }
+                })}
+                min="0"
+                data-testid="bugs-high-input"
+              />
+            </div>
+            <div className="severity-input-group">
+              <label className="severity-label">Medium</label>
+              <input
+                type="number"
+                className="form-input-small"
+                value={formData.bugs.medium}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  bugs: { ...formData.bugs, medium: parseInt(e.target.value) || 0 }
+                })}
+                min="0"
+                data-testid="bugs-medium-input"
+              />
+            </div>
+            <div className="severity-input-group">
+              <label className="severity-label">Low</label>
+              <input
+                type="number"
+                className="form-input-small"
+                value={formData.bugs.low}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  bugs: { ...formData.bugs, low: parseInt(e.target.value) || 0 }
+                })}
+                min="0"
+                data-testid="bugs-low-input"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-2 justify-end">
