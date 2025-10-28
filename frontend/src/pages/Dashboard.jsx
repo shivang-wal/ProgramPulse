@@ -441,6 +441,14 @@ const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
           >
             📅
           </button>
+          <button 
+            className="icon-button" 
+            onClick={() => exportProjectAsPDF(project)} 
+            data-testid="export-pdf-button"
+            title="Export as PDF"
+          >
+            📄
+          </button>
           <button className="icon-button" onClick={() => onEdit(project)} data-testid="edit-project-button">
             ✏️
           </button>
