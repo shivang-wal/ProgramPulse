@@ -526,6 +526,7 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
               currentWeek={currentDate}
               events={events}
               onEventCreate={onEventCreate}
+              onEventDelete={onEventDelete}
               selectedCategories={selectedCategories}
             />
           )}
@@ -534,6 +535,7 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
               currentMonth={currentDate}
               events={events}
               onEventCreate={onEventCreate}
+              onEventDelete={onEventDelete}
               selectedCategories={selectedCategories}
             />
           )}
