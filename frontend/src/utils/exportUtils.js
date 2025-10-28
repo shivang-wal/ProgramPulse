@@ -156,66 +156,101 @@ export const generateProjectPDF = (project) => {
 
 // Generate PDF for all projects
 export const generateAllProjectsPDF = (projects) => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.width;
-  
-  // Header
-  doc.setFillColor(74, 65, 115);
-  doc.rect(0, 0, pageWidth, 40, 'F');
-  
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
-  doc.setFont(undefined, 'bold');
-  doc.text('Program Pulse', 20, 25);
-  doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
-  doc.text('Project Dashboard Summary', 20, 35);
-  
-  const currentDate = new Date().toLocaleDateString();
-  doc.text(`Generated: ${currentDate}`, pageWidth - 80, 25);
-  
-  // Summary Table
-  doc.setTextColor(74, 65, 115);
-  doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
-  doc.text('Projects Overview', 20, 60);
-  
-  const tableData = projects.map(project => {
-    const bugs = project.bugs || { critical: 0, high: 0, medium: 0, low: 0 };
-    const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+  try {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
     
-    return [
-      project.name || 'Unnamed Project',
-      project.status || 'Unknown',
-      totalBugs.toString(),
-      bugs.critical.toString(),
-      bugs.high.toString(),
-      bugs.medium.toString(),
-      bugs.low.toString()
-    ];
-  });
-  
-  doc.autoTable({
-    head: [['Project Name', 'Status', 'Total Bugs', 'Critical', 'High', 'Medium', 'Low']],
-    body: tableData,
-    startY: 75,
-    theme: 'striped',
-    headStyles: {
-      fillColor: [74, 65, 115],
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      fontSize: 10
-    },
-    bodyStyles: {
-      fontSize: 9,
-      textColor: [74, 65, 115]
-    },
-    alternateRowStyles: {
-      fillColor: [248, 248, 248]
-    }
-  });
-  
-  return doc;
+    // Header
+    doc.setFillColor(74, 65, 115);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text('Program Pulse', 20, 25);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Project Dashboard Summary', 20, 35);
+    
+    const currentDate = new Date().toLocaleDateString();
+    doc.text(`Generated: ${currentDate}`, pageWidth - 80, 25);
+    
+    // Summary Table
+    doc.setTextColor(74, 65, 115);
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text('Projects Overview', 20, 60);
+    
+    // Manual table for all projects
+    let yPos = 80;
+    const startX = 20;
+    const rowHeight = 15;
+    const colWidths = [50, 30, 25, 20, 20, 20, 20];
+    
+    // Table header
+    doc.setFillColor(74, 65, 115);
+    doc.rect(startX, yPos, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    
+    let currentX = startX + 2;
+    const headers = ['Project Name', 'Status', 'Total Bugs', 'Critical', 'High', 'Medium', 'Low'];
+    headers.forEach((header, i) => {
+      doc.text(header, currentX, yPos + 10);
+      currentX += colWidths[i];
+    });
+    
+    yPos += rowHeight;
+    
+    // Project rows
+    doc.setTextColor(74, 65, 115);
+    doc.setFontSize(9);
+    
+    projects.forEach((project, index) => {
+      const bugs = project.bugs || { critical: 0, high: 0, medium: 0, low: 0 };
+      const totalBugs = bugs.critical + bugs.high + bugs.medium + bugs.low;
+      
+      // Alternate row colors
+      if (index % 2 === 0) {
+        doc.setFillColor(248, 248, 248);
+        doc.rect(startX, yPos, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+      }
+      
+      const row = [
+        project.name || 'Unnamed Project',
+        project.status || 'Unknown',
+        totalBugs.toString(),
+        bugs.critical.toString(),
+        bugs.high.toString(),
+        bugs.medium.toString(),
+        bugs.low.toString()
+      ];
+      
+      currentX = startX + 2;
+      row.forEach((cell, colIndex) => {
+        // Truncate long project names
+        const maxLength = colIndex === 0 ? 15 : cell.length;
+        const displayText = cell.length > maxLength ? cell.substring(0, maxLength) + '...' : cell;
+        doc.text(displayText, currentX, yPos + 10);
+        currentX += colWidths[colIndex];
+      });
+      
+      yPos += rowHeight;
+      
+      // Add new page if needed
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+    
+    return doc;
+  } catch (error) {
+    console.error('Error generating all projects PDF:', error);
+    throw new Error('Failed to generate PDF: ' + error.message);
+  }
 };
 
 // Export single project as PDF
