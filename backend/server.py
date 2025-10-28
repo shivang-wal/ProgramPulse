@@ -68,16 +68,22 @@ class CalendarEvent(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     date: str  # ISO date string YYYY-MM-DD
+    startTime: str = "09:00"  # HH:MM format
+    endTime: str = "10:00"   # HH:MM format
     title: str
     description: str = ""
+    category: str = "General"  # Event category for grouping
     projectId: Optional[str] = None
     color: str = "#667eea"  # Default purple color
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CalendarEventCreate(BaseModel):
     date: str
+    startTime: str = "09:00"
+    endTime: str = "10:00"
     title: str
     description: str = ""
+    category: str = "General"
     projectId: Optional[str] = None
     color: str = "#667eea"  # Default purple color
 
