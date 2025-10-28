@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class ProgramManagementAPITester:
-    def __init__(self, base_url="https://project-tracker-175.preview.emergentagent.com"):
+    def __init__(self, base_url="https://project-tracker-178.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
@@ -269,7 +269,7 @@ class ProgramManagementAPITester:
 
 def main():
     print("🚀 Starting Program Management API Tests")
-    print(f"Testing against: https://project-tracker-175.preview.emergentagent.com/api")
+    print(f"Testing against: https://project-tracker-178.preview.emergentagent.com/api")
     
     tester = ProgramManagementAPITester()
     
