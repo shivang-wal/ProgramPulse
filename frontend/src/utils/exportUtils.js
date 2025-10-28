@@ -255,16 +255,34 @@ export const generateAllProjectsPDF = (projects) => {
 
 // Export single project as PDF
 export const exportProjectAsPDF = (project) => {
-  const doc = generateProjectPDF(project);
-  const fileName = `${project.name?.replace(/[^a-z0-9]/gi, '_') || 'project'}_${new Date().toISOString().split('T')[0]}.pdf`;
-  doc.save(fileName);
+  try {
+    console.log('Exporting project:', project);
+    const doc = generateProjectPDF(project);
+    const fileName = `${project.name?.replace(/[^a-z0-9]/gi, '_') || 'project'}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    console.log('PDF export successful:', fileName);
+  } catch (error) {
+    console.error('Failed to export project as PDF:', error);
+    alert('Failed to generate PDF: ' + error.message);
+  }
 };
 
 // Export all projects as PDF
 export const exportAllProjectsAsPDF = (projects) => {
-  const doc = generateAllProjectsPDF(projects);
-  const fileName = `all_projects_${new Date().toISOString().split('T')[0]}.pdf`;
-  doc.save(fileName);
+  try {
+    console.log('Exporting all projects:', projects.length);
+    if (!projects || projects.length === 0) {
+      alert('No projects to export');
+      return;
+    }
+    const doc = generateAllProjectsPDF(projects);
+    const fileName = `all_projects_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    console.log('PDF export successful:', fileName);
+  } catch (error) {
+    console.error('Failed to export all projects as PDF:', error);
+    alert('Failed to generate PDF: ' + error.message);
+  }
 };
 
 // Export projects as Excel
