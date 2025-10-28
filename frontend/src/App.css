@@ -169,8 +169,9 @@ h1, h2, h3, h4, h5, h6 {
 .export-btn {
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  border: 2px solid transparent;
+  border: 2px solid #4A4173;
   background: white;
+  color: #4A4173;
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
@@ -181,31 +182,31 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', sans-serif;
   text-decoration: none;
   outline: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(74, 65, 115, 0.2);
 }
 
 .export-btn-pdf {
-  color: #dc2626;
-  border-color: #dc2626;
+  color: #4A4173;
+  border-color: #4A4173;
 }
 
 .export-btn-pdf:hover {
-  background: #dc2626;
+  background: #4A4173;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 65, 115, 0.3);
 }
 
 .export-btn-excel {
-  color: #059669;
-  border-color: #059669;
+  color: #4A4173;
+  border-color: #4A4173;
 }
 
 .export-btn-excel:hover {
-  background: #059669;
+  background: #4A4173;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 65, 115, 0.3);
 }
 
 .export-btn:active {
