@@ -151,7 +151,7 @@ async def update_project(project_id: str, input: ProjectUpdate):
         risks=current_project.get('risks', ''),
         escalation=current_project.get('escalation', ''),
         plannedNextWeek=current_project.get('plannedNextWeek', ''),
-        bugsCount=current_project.get('bugsCount', 0)
+        bugs=BugSeverity(**current_project.get('bugs', {})) if current_project.get('bugs') else BugSeverity()
     )
     
     history_doc = history_entry.model_dump()
