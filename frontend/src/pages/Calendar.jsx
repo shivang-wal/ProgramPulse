@@ -16,7 +16,19 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
     date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '',
     title: '',
     description: '',
+    color: '#667eea',
   });
+
+  const eventColors = [
+    { name: 'Purple', value: '#667eea' },
+    { name: 'Blue', value: '#3b82f6' },
+    { name: 'Green', value: '#10b981' },
+    { name: 'Red', value: '#ef4444' },
+    { name: 'Orange', value: '#f97316' },
+    { name: 'Pink', value: '#ec4899' },
+    { name: 'Teal', value: '#14b8a6' },
+    { name: 'Indigo', value: '#6366f1' },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +86,25 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
           />
         </div>
 
+        <div className="form-group">
+          <label className="form-label">Event Color</label>
+          <div className="color-picker-grid">
+            {eventColors.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                className={`color-picker-option ${formData.color === color.value ? 'selected' : ''}`}
+                style={{ backgroundColor: color.value }}
+                onClick={() => setFormData({ ...formData, color: color.value })}
+                title={color.name}
+                data-testid={`color-${color.value}`}
+              >
+                {formData.color === color.value && <span className="color-check">✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={onClose} data-testid="cancel-event-button">
             Cancel
@@ -108,11 +139,12 @@ const WeeklyEventsCarousel = ({ events, onDelete }) => {
         <div className="embla__container">
           {events.map((event) => (
             <div key={event.id} className="embla__slide" data-testid={`carousel-event-${event.id}`}>
-              <div className="carousel-event-card">
+              <div className="carousel-event-card" style={{ borderLeftColor: event.color || '#4A4173' }}>
                 <div className="carousel-event-header">
                   <div className="carousel-event-date">
                     {format(parseISO(event.date), 'EEEE, MMM dd')}
                   </div>
+                  <div className="carousel-event-color-dot" style={{ backgroundColor: event.color || '#4A4173' }}></div>
                   <button
                     className="icon-button"
                     onClick={() => onDelete(event.id)}
@@ -161,9 +193,9 @@ const DayView = ({ date, events, onDelete }) => {
           </div>
         ) : (
           dayEvents.map((event) => (
-            <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`}>
+            <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`} style={{ borderLeftColor: event.color || '#4A4173' }}>
               <div className="event-info">
-                <div className="event-title" data-testid="event-title">{event.title}</div>
+                <div className="event-title" data-testid="event-title" style={{ color: event.color || '#4A4173' }}>{event.title}</div>
                 {event.description && (
                   <div className="event-description" data-testid="event-description">{event.description}</div>
                 )}
@@ -228,6 +260,10 @@ const WeekView = ({ date, events, onDelete }) => {
                     className="week-event-item" 
                     data-testid={`week-event-${event.id}`}
                     title={event.description}
+                    style={{ 
+                      borderLeftColor: event.color || '#4A4173',
+                      background: `linear-gradient(135deg, ${event.color || '#4A4173'}15 0%, ${event.color || '#4A4173'}08 100%)`
+                    }}
                   >
                     {event.title}
                   </div>
@@ -242,22 +278,51 @@ const WeekView = ({ date, events, onDelete }) => {
 };
 
 const MonthView = ({ date, events, onDateSelect, onDelete }) => {
-  const eventDates = events.map(event => event.date);
+  const eventsByDate = events.reduce((acc, event) => {
+    if (!acc[event.date]) {
+      acc[event.date] = [];
+    }
+    acc[event.date].push(event);
+    return acc;
+  }, {});
 
   const modifiers = {
     hasEvent: (date) => {
       const dateStr = format(date, 'yyyy-MM-dd');
-      return eventDates.includes(dateStr);
+      return eventsByDate[dateStr] && eventsByDate[dateStr].length > 0;
     },
   };
 
   const modifiersStyles = {
     hasEvent: {
-      backgroundColor: '#667eea',
-      color: 'white',
-      borderRadius: '50%',
-      fontWeight: 'bold',
+      position: 'relative',
     },
+  };
+
+  const DayContent = ({ date: dayDate }) => {
+    const dateStr = format(dayDate, 'yyyy-MM-dd');
+    const dayEvents = eventsByDate[dateStr] || [];
+    
+    return (
+      <div className="calendar-day-content">
+        <span className="calendar-day-number">{format(dayDate, 'd')}</span>
+        {dayEvents.length > 0 && (
+          <div className="calendar-day-dots">
+            {dayEvents.slice(0, 3).map((event, index) => (
+              <div 
+                key={event.id} 
+                className="calendar-event-dot" 
+                style={{ backgroundColor: event.color || '#667eea' }}
+                title={event.title}
+              />
+            ))}
+            {dayEvents.length > 3 && (
+              <div className="calendar-more-events">+{dayEvents.length - 3}</div>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -274,6 +339,15 @@ const MonthView = ({ date, events, onDateSelect, onDelete }) => {
             modifiersStyles={modifiersStyles}
             className="border rounded-lg p-4"
             data-testid="calendar-component"
+            components={{
+              Day: ({ date: dayDate, displayMonth, ...props }) => {
+                return (
+                  <div {...props} className="calendar-day">
+                    <DayContent date={dayDate} />
+                  </div>
+                );
+              }
+            }}
           />
         </div>
       </div>
@@ -289,23 +363,26 @@ const MonthView = ({ date, events, onDateSelect, onDelete }) => {
             </div>
           ) : (
             sortedEvents.map((event) => (
-              <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`}>
+              <div key={event.id} className="event-card" data-testid={`event-card-${event.id}`} style={{ borderLeftColor: event.color || '#4A4173' }}>
                 <div className="event-info">
                   <div className="event-date" data-testid="event-date">
                     {format(new Date(event.date), 'MMMM dd, yyyy')}
                   </div>
-                  <div className="event-title" data-testid="event-title">{event.title}</div>
+                  <div className="event-title" data-testid="event-title" style={{ color: event.color || '#4A4173' }}>{event.title}</div>
                   {event.description && (
                     <div className="event-description" data-testid="event-description">{event.description}</div>
                   )}
                 </div>
-                <button
-                  className="icon-button"
-                  onClick={() => onDelete(event.id)}
-                  data-testid="delete-event-button"
-                >
-                  🗑️
-                </button>
+                <div className="event-actions">
+                  <div className="event-color-indicator" style={{ backgroundColor: event.color || '#4A4173' }}></div>
+                  <button
+                    className="icon-button"
+                    onClick={() => onDelete(event.id)}
+                    data-testid="delete-event-button"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -363,7 +440,7 @@ const Calendar = () => {
     <div className="page-container">
       <div className="page-header">
         <h1 className="page-title">Release Calendar</h1>
-        <p className="page-subtitle">Track important dates and milestones</p>
+        <p className="page-subtitle">Track important dates and milestones with color-coded events</p>
       </div>
 
       <div className="calendar-container">
