@@ -61,7 +61,7 @@ class ProjectUpdate(BaseModel):
     risks: Optional[str] = None
     escalation: Optional[str] = None
     plannedNextWeek: Optional[str] = None
-    bugsCount: Optional[int] = None
+    bugs: Optional[BugSeverity] = None
 
 class CalendarEvent(BaseModel):
     model_config = ConfigDict(extra="ignore")
