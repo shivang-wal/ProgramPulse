@@ -224,6 +224,205 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.05rem;
 }
 
+/* Weekly Events Carousel */
+.weekly-events-carousel {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(74, 65, 115, 0.12);
+  border: 2px solid rgba(184, 168, 217, 0.2);
+}
+
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #F5F0FF;
+}
+
+.carousel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.carousel-title h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4A4173;
+  margin: 0;
+}
+
+.carousel-title svg {
+  color: #6B5B95;
+}
+
+.event-count {
+  background: #F5F0FF;
+  color: #6B5B95;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.carousel-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel-btn {
+  background: #F5F0FF;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B5B95;
+}
+
+.carousel-btn:hover {
+  background: #E8DFF5;
+  color: #4A4173;
+  transform: scale(1.05);
+}
+
+.carousel-btn:active {
+  transform: scale(0.95);
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.carousel-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.carousel-slide {
+  flex: 0 0 33.333%;
+  min-width: 0;
+}
+
+@media (max-width: 1400px) {
+  .carousel-slide {
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-slide {
+    flex: 0 0 100%;
+  }
+}
+
+.event-card {
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFE8CC 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.event-category-badge {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.event-date {
+  color: #6B5B95;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.event-card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #4A4173;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.event-card-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6B5B95;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.event-card-time svg {
+  flex-shrink: 0;
+}
+
+.event-card-description {
+  color: #6B5B95;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carousel-loading,
+.carousel-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #6B5B95;
+  font-size: 1rem;
+}
+
+.carousel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel-empty svg {
+  color: #B8A8D9;
+  opacity: 0.5;
+}
+
+.carousel-empty p {
+  margin: 0;
+  color: #6B5B95;
+}
+
 /* Project Grid */
 .projects-grid {
   display: grid;
