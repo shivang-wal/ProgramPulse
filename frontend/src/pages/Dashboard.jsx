@@ -250,11 +250,50 @@ const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
     return statusMap[status] || 'status-on-track';
   };
 
+  const getStatusColors = (status) => {
+    const colorMap = {
+      'On Track': {
+        border: '#10b981',
+        background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)',
+        accent: '#10b981'
+      },
+      'At Risk': {
+        border: '#f59e0b',
+        background: 'linear-gradient(135deg, #fffbeb 0%, #fefce8 100%)',
+        accent: '#f59e0b'
+      },
+      'Delayed': {
+        border: '#ef4444',
+        background: 'linear-gradient(135deg, #fef2f2 0%, #fefafa 100%)',
+        accent: '#ef4444'
+      },
+      'Completed': {
+        border: '#6366f1',
+        background: 'linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%)',
+        accent: '#6366f1'
+      }
+    };
+    return colorMap[status] || colorMap['On Track'];
+  };
+
+  const statusColors = getStatusColors(project.status);
+
   return (
-    <div className="project-card" data-testid={`project-card-${project.id}`}>
+    <div 
+      className="project-card" 
+      data-testid={`project-card-${project.id}`}
+      style={{
+        background: statusColors.background,
+        borderColor: statusColors.border,
+        borderLeftWidth: '5px',
+        borderLeftStyle: 'solid'
+      }}
+    >
       <div className="project-header">
         <div className="project-title-section">
-          <h3 className="project-name" data-testid="project-name">{project.name}</h3>
+          <h3 className="project-name" data-testid="project-name" style={{ color: statusColors.accent }}>
+            {project.name}
+          </h3>
           <span className={`status-badge ${getStatusClass(project.status)}`} data-testid="project-status">
             {project.status}
           </span>
@@ -279,34 +318,34 @@ const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
 
       <div className="project-content">
         {project.completedThisWeek && (
-          <div className="project-section">
-            <div className="section-label">Completed This Week</div>
+          <div className="project-section" style={{ borderLeftColor: statusColors.accent }}>
+            <div className="section-label" style={{ color: statusColors.accent }}>Completed This Week</div>
             <div className="section-content" data-testid="completed-content">{project.completedThisWeek}</div>
           </div>
         )}
 
         {project.risks && (
-          <div className="project-section">
-            <div className="section-label">Risks</div>
+          <div className="project-section" style={{ borderLeftColor: statusColors.accent }}>
+            <div className="section-label" style={{ color: statusColors.accent }}>Risks</div>
             <div className="section-content" data-testid="risks-content">{project.risks}</div>
           </div>
         )}
 
         {project.escalation && (
-          <div className="project-section">
-            <div className="section-label">Escalation</div>
+          <div className="project-section" style={{ borderLeftColor: statusColors.accent }}>
+            <div className="section-label" style={{ color: statusColors.accent }}>Escalation</div>
             <div className="section-content" data-testid="escalation-content">{project.escalation}</div>
           </div>
         )}
 
         {project.plannedNextWeek && (
-          <div className="project-section">
-            <div className="section-label">Planned Next Week</div>
+          <div className="project-section" style={{ borderLeftColor: statusColors.accent }}>
+            <div className="section-label" style={{ color: statusColors.accent }}>Planned Next Week</div>
             <div className="section-content" data-testid="planned-content">{project.plannedNextWeek}</div>
           </div>
         )}
 
-        <div className="bugs-count" data-testid="bugs-count">
+        <div className="bugs-count" style={{ background: `linear-gradient(135deg, ${statusColors.accent} 0%, ${statusColors.accent}dd 100%)` }}>
           <span>🐛 Bugs Count</span>
           <span>{project.bugsCount}</span>
         </div>
