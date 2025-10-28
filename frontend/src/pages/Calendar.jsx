@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, addWeeks, subWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, addWeeks, subWeeks, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -159,10 +159,65 @@ const EventDialog = ({ selectedDate, selectedTime, onClose, onSave }) => {
   );
 };
 
-const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [selectedCategories, setSelectedCategories] = useState(new Set());
+// Day View Component
+const DayView = ({ currentDate, events, onEventCreate, selectedCategories }) => {
+  const timeSlots = [];
+  for (let hour = 7; hour <= 20; hour++) {
+    timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+  }
 
+  const filteredEvents = events.filter(event => {
+    const eventDate = format(parseISO(event.date), 'yyyy-MM-dd');
+    const currentDateStr = format(currentDate, 'yyyy-MM-dd');
+    return eventDate === currentDateStr && (selectedCategories.size === 0 || selectedCategories.has(event.category));
+  });
+
+  const getEventsForTime = (timeSlot) => {
+    return filteredEvents.filter(event => {
+      const eventStart = event.startTime || '09:00';
+      const eventEnd = event.endTime || '10:00';
+      return eventStart <= timeSlot && eventEnd > timeSlot;
+    });
+  };
+
+  return (
+    <div className="day-view-container">
+      <div className="day-view-header">
+        <h2 className="day-view-title">{format(currentDate, 'EEEE, MMMM dd, yyyy')}</h2>
+      </div>
+      <div className="day-schedule-grid">
+        {timeSlots.map(timeSlot => {
+          const timeEvents = getEventsForTime(timeSlot);
+          return (
+            <div key={timeSlot} className="day-time-row">
+              <div className="day-time-label">{timeSlot}</div>
+              <div 
+                className="day-time-slot"
+                onClick={() => onEventCreate(currentDate, timeSlot)}
+                data-testid={`day-slot-${timeSlot}`}
+              >
+                {timeEvents.map(event => (
+                  <div
+                    key={event.id}
+                    className="event-block"
+                    style={{ backgroundColor: event.color }}
+                    title={`${event.title} (${event.startTime}-${event.endTime})`}
+                  >
+                    <div className="event-title">{event.title}</div>
+                    <div className="event-time">{event.startTime}-{event.endTime}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Week View Component (existing)
+const WeekView = ({ currentWeek, events, onEventCreate, selectedCategories }) => {
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekDays = [];
@@ -175,17 +230,6 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
   for (let hour = 7; hour <= 20; hour++) {
     timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
   }
-
-  const categories = [
-    { name: 'General', color: '#667eea' },
-    { name: 'Sprint Planning', color: '#3b82f6' },
-    { name: 'Reviews & Demos', color: '#10b981' },
-    { name: 'Team Meetings', color: '#ef4444' },
-    { name: 'Client Calls', color: '#f59e0b' },
-    { name: 'Development', color: '#8b5cf6' },
-    { name: 'Testing', color: '#06b6d4' },
-    { name: 'Releases', color: '#84cc16' },
-  ];
 
   const filteredEvents = events.filter(event => {
     if (selectedCategories.size === 0) return true;
@@ -202,6 +246,132 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
     });
   };
 
+  return (
+    <div className="schedule-grid">
+      {/* Header with days */}
+      <div className="grid-header">
+        <div className="time-header">Time</div>
+        {weekDays.map(day => (
+          <div key={day.toISOString()} className="day-header">
+            <div className="day-name">{format(day, 'EEE')}</div>
+            <div className="day-number">{format(day, 'd')}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Time slots grid */}
+      <div className="grid-body">
+        {timeSlots.map(timeSlot => (
+          <div key={timeSlot} className="time-row">
+            <div className="time-label">{timeSlot}</div>
+            {weekDays.map(day => {
+              const dayEvents = getEventsForDateAndTime(day, timeSlot);
+              return (
+                <div 
+                  key={`${day.toISOString()}-${timeSlot}`}
+                  className="time-slot"
+                  onClick={() => onEventCreate(day, timeSlot)}
+                  data-testid={`slot-${format(day, 'yyyy-MM-dd')}-${timeSlot}`}
+                >
+                  {dayEvents.map(event => (
+                    <div
+                      key={event.id}
+                      className="event-block"
+                      style={{ backgroundColor: event.color }}
+                      title={`${event.title} (${event.startTime}-${event.endTime})`}
+                    >
+                      <div className="event-title">{event.title}</div>
+                      <div className="event-time">{event.startTime}-{event.endTime}</div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Month View Component
+const MonthView = ({ currentMonth, events, onEventCreate, selectedCategories }) => {
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+
+  const filteredEvents = events.filter(event => {
+    if (selectedCategories.size === 0) return true;
+    return selectedCategories.has(event.category);
+  });
+
+  const getEventsForDate = (date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return filteredEvents.filter(event => event.date === dateStr);
+  };
+
+  return (
+    <div className="month-view-container">
+      <div className="month-grid">
+        <div className="month-header">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="month-day-header">{day}</div>
+          ))}
+        </div>
+        <div className="month-body">
+          {calendarDays.map(day => {
+            const dayEvents = getEventsForDate(day);
+            const isCurrentMonth = format(day, 'M') === format(currentMonth, 'M');
+            return (
+              <div 
+                key={day.toISOString()} 
+                className={`month-day ${!isCurrentMonth ? 'other-month' : ''}`}
+                onClick={() => onEventCreate(day, '09:00')}
+                data-testid={`month-day-${format(day, 'yyyy-MM-dd')}`}
+              >
+                <div className="month-day-number">{format(day, 'd')}</div>
+                <div className="month-day-events">
+                  {dayEvents.slice(0, 3).map(event => (
+                    <div
+                      key={event.id}
+                      className="month-event-item"
+                      style={{ backgroundColor: event.color }}
+                      title={`${event.title} (${event.startTime}-${event.endTime})`}
+                    >
+                      {event.title}
+                    </div>
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <div className="month-more-events">+{dayEvents.length - 3} more</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedCategories, setSelectedCategories] = useState(new Set());
+  const [viewMode, setViewMode] = useState('week'); // day, week, month
+
+  const categories = [
+    { name: 'General', color: '#667eea' },
+    { name: 'Sprint Planning', color: '#3b82f6' },
+    { name: 'Reviews & Demos', color: '#10b981' },
+    { name: 'Team Meetings', color: '#ef4444' },
+    { name: 'Client Calls', color: '#f59e0b' },
+    { name: 'Development', color: '#8b5cf6' },
+    { name: 'Testing', color: '#06b6d4' },
+    { name: 'Releases', color: '#84cc16' },
+  ];
+
   const toggleCategory = (categoryName) => {
     const newSelected = new Set(selectedCategories);
     if (newSelected.has(categoryName)) {
@@ -212,16 +382,36 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
     setSelectedCategories(newSelected);
   };
 
-  const handleTimeSlotClick = (date, timeSlot) => {
-    onEventCreate(date, timeSlot);
+  const navigatePrevious = () => {
+    if (viewMode === 'day') {
+      setCurrentDate(addDays(currentDate, -1));
+    } else if (viewMode === 'week') {
+      setCurrentDate(subWeeks(currentDate, 1));
+    } else {
+      setCurrentDate(subMonths(currentDate, 1));
+    }
   };
 
-  const previousWeek = () => {
-    setCurrentWeek(subWeeks(currentWeek, 1));
+  const navigateNext = () => {
+    if (viewMode === 'day') {
+      setCurrentDate(addDays(currentDate, 1));
+    } else if (viewMode === 'week') {
+      setCurrentDate(addWeeks(currentDate, 1));
+    } else {
+      setCurrentDate(addMonths(currentDate, 1));
+    }
   };
 
-  const nextWeek = () => {
-    setCurrentWeek(addWeeks(currentWeek, 1));
+  const getDateRangeTitle = () => {
+    if (viewMode === 'day') {
+      return format(currentDate, 'MMMM dd, yyyy');
+    } else if (viewMode === 'week') {
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+      return `${format(weekStart, 'MMM dd')} - ${format(weekEnd, 'MMM dd, yyyy')}`;
+    } else {
+      return format(currentDate, 'MMMM yyyy');
+    }
   };
 
   return (
@@ -246,63 +436,68 @@ const ScheduleCalendar = ({ events, onEventCreate, onEventDelete }) => {
 
       {/* Main Calendar */}
       <div className="schedule-main">
-        {/* Week Navigation */}
-        <div className="week-nav">
-          <button className="nav-btn" onClick={previousWeek} data-testid="prev-week">
-            ← Previous
-          </button>
-          <h2 className="week-title">
-            {format(weekStart, 'MMM dd')} - {format(weekEnd, 'MMM dd, yyyy')}
-          </h2>
-          <button className="nav-btn" onClick={nextWeek} data-testid="next-week">
-            Next →
-          </button>
+        {/* View Mode Filters and Navigation */}
+        <div className="calendar-controls">
+          <div className="view-mode-filters">
+            <button 
+              className={`view-mode-btn ${viewMode === 'day' ? 'active' : ''}`}
+              onClick={() => setViewMode('day')}
+              data-testid="view-day-button"
+            >
+              Day
+            </button>
+            <button 
+              className={`view-mode-btn ${viewMode === 'week' ? 'active' : ''}`}
+              onClick={() => setViewMode('week')}
+              data-testid="view-week-button"
+            >
+              Week
+            </button>
+            <button 
+              className={`view-mode-btn ${viewMode === 'month' ? 'active' : ''}`}
+              onClick={() => setViewMode('month')}
+              data-testid="view-month-button"
+            >
+              Month
+            </button>
+          </div>
+          <div className="date-navigation">
+            <button className="nav-btn" onClick={navigatePrevious} data-testid="nav-previous">
+              ← Previous
+            </button>
+            <h2 className="date-title">{getDateRangeTitle()}</h2>
+            <button className="nav-btn" onClick={navigateNext} data-testid="nav-next">
+              Next →
+            </button>
+          </div>
         </div>
 
-        {/* Calendar Grid */}
-        <div className="schedule-grid">
-          {/* Header with days */}
-          <div className="grid-header">
-            <div className="time-header">Time</div>
-            {weekDays.map(day => (
-              <div key={day.toISOString()} className="day-header">
-                <div className="day-name">{format(day, 'EEE')}</div>
-                <div className="day-number">{format(day, 'd')}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Time slots grid */}
-          <div className="grid-body">
-            {timeSlots.map(timeSlot => (
-              <div key={timeSlot} className="time-row">
-                <div className="time-label">{timeSlot}</div>
-                {weekDays.map(day => {
-                  const dayEvents = getEventsForDateAndTime(day, timeSlot);
-                  return (
-                    <div 
-                      key={`${day.toISOString()}-${timeSlot}`}
-                      className="time-slot"
-                      onClick={() => handleTimeSlotClick(day, timeSlot)}
-                      data-testid={`slot-${format(day, 'yyyy-MM-dd')}-${timeSlot}`}
-                    >
-                      {dayEvents.map(event => (
-                        <div
-                          key={event.id}
-                          className="event-block"
-                          style={{ backgroundColor: event.color }}
-                          title={`${event.title} (${event.startTime}-${event.endTime})`}
-                        >
-                          <div className="event-title">{event.title}</div>
-                          <div className="event-time">{event.startTime}-{event.endTime}</div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+        {/* Calendar Views */}
+        <div className="calendar-content">
+          {viewMode === 'day' && (
+            <DayView 
+              currentDate={currentDate}
+              events={events}
+              onEventCreate={onEventCreate}
+              selectedCategories={selectedCategories}
+            />
+          )}
+          {viewMode === 'week' && (
+            <WeekView 
+              currentWeek={currentDate}
+              events={events}
+              onEventCreate={onEventCreate}
+              selectedCategories={selectedCategories}
+            />
+          )}
+          {viewMode === 'month' && (
+            <MonthView 
+              currentMonth={currentDate}
+              events={events}
+              onEventCreate={onEventCreate}
+              selectedCategories={selectedCategories}
+            />
+          )}
         </div>
       </div>
     </div>
