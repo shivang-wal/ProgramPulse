@@ -13,7 +13,7 @@ const Navigation = () => {
       <div className="nav-container">
         <div className="nav-brand">
           <img 
-            src="https://lucyrx.com/wp-content/uploads/2023/04/LucyRx_Logo_Purple.svg" 
+            src="https://customer-assets.emergentagent.com/job_project-tracker-175/artifacts/pqzlbikk_LucyRx-Logo-Social.png" 
             alt="LucyRx Logo" 
             className="brand-logo"
           />
