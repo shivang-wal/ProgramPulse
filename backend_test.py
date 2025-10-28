@@ -484,6 +484,7 @@ def main():
     test_suites = [
         ("Project CRUD Operations", tester.test_projects_crud),
         ("Calendar Events CRUD Operations", tester.test_events_crud),
+        ("Calendar Event Delete Functionality", tester.test_calendar_event_delete_functionality),
         ("Error Handling", tester.test_error_cases),
         ("Cleanup", tester.test_cleanup)
     ]
