@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, isWithinInterval } from 'date-fns';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -85,6 +87,63 @@ const EventDialog = ({ selectedDate, onClose, onSave }) => {
   );
 };
 
+const WeeklyEventsCarousel = ({ events, onDelete }) => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 4000 })]);
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
+  const scrollNext = () => emblaApi && emblaApi.scrollNext();
+
+  if (events.length === 0) {
+    return (
+      <div className="weekly-events-empty">
+        <p>No events scheduled for this week</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="weekly-events-carousel-container">
+      <h3 className="carousel-title">This Week's Events ({events.length})</h3>
+      <div className="embla" ref={emblaRef}>
+        <div className="embla__container">
+          {events.map((event) => (
+            <div key={event.id} className="embla__slide" data-testid={`carousel-event-${event.id}`}>
+              <div className="carousel-event-card">
+                <div className="carousel-event-header">
+                  <div className="carousel-event-date">
+                    {format(parseISO(event.date), 'EEEE, MMM dd')}
+                  </div>
+                  <button
+                    className="icon-button"
+                    onClick={() => onDelete(event.id)}
+                    data-testid={`delete-carousel-event-${event.id}`}
+                  >
+                    🗑️
+                  </button>
+                </div>
+                <h4 className="carousel-event-title">{event.title}</h4>
+                {event.description && (
+                  <p className="carousel-event-description">{event.description}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {events.length > 1 && (
+        <div className="embla__controls">
+          <button className="embla__button embla__button--prev" onClick={scrollPrev} data-testid="carousel-prev">
+            ←
+          </button>
+          <button className="embla__button embla__button--next" onClick={scrollNext} data-testid="carousel-next">
+            →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const DayView = ({ date, events, onDelete }) => {
   const dayEvents = events.filter(event => isSameDay(parseISO(event.date), date));
   
@@ -132,6 +191,12 @@ const WeekView = ({ date, events, onDelete }) => {
   for (let i = 0; i < 7; i++) {
     days.push(addDays(weekStart, i));
   }
+
+  // Get events for this week for the carousel
+  const weekEvents = events.filter(event => {
+    const eventDate = parseISO(event.date);
+    return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
   
   return (
     <div className="week-view">
@@ -139,6 +204,11 @@ const WeekView = ({ date, events, onDelete }) => {
         <div className="week-view-range" data-testid="week-view-range">
           {format(weekStart, 'MMM dd')} - {format(weekEnd, 'MMM dd, yyyy')}
         </div>
+      </div>
+
+      {/* Weekly Events Carousel */}
+      <div style={{ marginBottom: '2rem' }}>
+        <WeeklyEventsCarousel events={weekEvents} onDelete={onDelete} />
       </div>
       
       <div className="week-grid">
