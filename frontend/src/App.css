@@ -1004,10 +1004,11 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.7rem;
 }
 
 .event-time {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   opacity: 0.9;
   white-space: nowrap;
 }
@@ -1015,8 +1016,8 @@ h1, h2, h3, h4, h5, h6 {
 .event-delete-btn {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: 4px;
-  padding: 0.35rem;
+  border-radius: 3px;
+  padding: 0.25rem;
   cursor: pointer;
   display: flex;
   align-items: center;
