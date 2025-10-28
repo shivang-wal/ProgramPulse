@@ -74,6 +74,20 @@ class CalendarEventCreate(BaseModel):
     description: str = ""
     projectId: Optional[str] = None
 
+class ProjectHistory(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    projectId: str
+    projectName: str
+    status: str
+    completedThisWeek: str = ""
+    risks: str = ""
+    escalation: str = ""
+    plannedNextWeek: str = ""
+    bugsCount: int = 0
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 # Project Routes
 @api_router.post("/projects", response_model=Project)
