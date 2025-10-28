@@ -26,7 +26,12 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
+class BugSeverity(BaseModel):
+    critical: int = 0
+    high: int = 0
+    medium: int = 0
+    low: int = 0
+
 class Project(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
@@ -37,7 +42,7 @@ class Project(BaseModel):
     risks: str = ""
     escalation: str = ""
     plannedNextWeek: str = ""
-    bugsCount: int = 0
+    bugs: BugSeverity = Field(default_factory=BugSeverity)
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProjectCreate(BaseModel):
@@ -47,7 +52,7 @@ class ProjectCreate(BaseModel):
     risks: str = ""
     escalation: str = ""
     plannedNextWeek: str = ""
-    bugsCount: int = 0
+    bugs: BugSeverity = Field(default_factory=BugSeverity)
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
