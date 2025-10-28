@@ -295,34 +295,10 @@ const MonthView = ({ date, events, onDateSelect, onDelete }) => {
 
   const modifiersStyles = {
     hasEvent: {
-      position: 'relative',
+      backgroundColor: '#F5F0FF',
+      borderRadius: '8px',
+      fontWeight: 'bold',
     },
-  };
-
-  const DayContent = ({ date: dayDate }) => {
-    const dateStr = format(dayDate, 'yyyy-MM-dd');
-    const dayEvents = eventsByDate[dateStr] || [];
-    
-    return (
-      <div className="calendar-day-content">
-        <span className="calendar-day-number">{format(dayDate, 'd')}</span>
-        {dayEvents.length > 0 && (
-          <div className="calendar-day-dots">
-            {dayEvents.slice(0, 3).map((event, index) => (
-              <div 
-                key={event.id} 
-                className="calendar-event-dot" 
-                style={{ backgroundColor: event.color || '#667eea' }}
-                title={event.title}
-              />
-            ))}
-            {dayEvents.length > 3 && (
-              <div className="calendar-more-events">+{dayEvents.length - 3}</div>
-            )}
-          </div>
-        )}
-      </div>
-    );
   };
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -339,15 +315,6 @@ const MonthView = ({ date, events, onDateSelect, onDelete }) => {
             modifiersStyles={modifiersStyles}
             className="border rounded-lg p-4"
             data-testid="calendar-component"
-            components={{
-              Day: ({ date: dayDate, displayMonth, ...props }) => {
-                return (
-                  <div {...props} className="calendar-day">
-                    <DayContent date={dayDate} />
-                  </div>
-                );
-              }
-            }}
           />
         </div>
       </div>
