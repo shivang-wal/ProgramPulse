@@ -432,9 +432,13 @@ const Dashboard = () => {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={handleCreate} data-testid="create-project-button">
+              <button 
+                onClick={handleCreate} 
+                data-testid="create-project-button"
+                className="create-project-btn"
+              >
                 + Create Project
-              </Button>
+              </button>
             </DialogTrigger>
             {dialogOpen && (
               <ProjectDialog
