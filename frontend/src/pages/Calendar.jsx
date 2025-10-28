@@ -231,7 +231,7 @@ const DayView = ({ currentDate, events, onEventCreate, onEventDelete, selectedCa
 };
 
 // Week View Component (existing)
-const WeekView = ({ currentWeek, events, onEventCreate, selectedCategories }) => {
+const WeekView = ({ currentWeek, events, onEventCreate, onEventDelete, selectedCategories }) => {
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekDays = [];
@@ -293,9 +293,22 @@ const WeekView = ({ currentWeek, events, onEventCreate, selectedCategories }) =>
                       className="event-block"
                       style={{ backgroundColor: event.color }}
                       title={`${event.title} (${event.startTime}-${event.endTime})`}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="event-title">{event.title}</div>
-                      <div className="event-time">{event.startTime}-{event.endTime}</div>
+                      <div className="event-content">
+                        <div className="event-title">{event.title}</div>
+                        <div className="event-time">{event.startTime}-{event.endTime}</div>
+                      </div>
+                      <button
+                        className="event-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEventDelete(event.id);
+                        }}
+                        title="Delete event"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   ))}
                 </div>
