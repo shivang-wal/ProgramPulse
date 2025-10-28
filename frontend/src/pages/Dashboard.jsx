@@ -478,10 +478,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
           </div>
         )}
 
-        <div className="bugs-count" style={{ background: `linear-gradient(135deg, ${statusColors.accent} 0%, ${statusColors.accent}dd 100%)` }}>
-          <span>🐛 Bugs Count</span>
-          <span>{project.bugsCount}</span>
-        </div>
+        <BugsTable bugs={project.bugs} statusColors={statusColors} />
       </div>
     </div>
   );
