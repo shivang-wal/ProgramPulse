@@ -294,6 +294,89 @@ const ProjectDialog = ({ project, onClose, onSave }) => {
   );
 };
 
+const BugsTable = ({ bugs, statusColors }) => {
+  const bugData = bugs || { critical: 0, high: 0, medium: 0, low: 0 };
+  
+  const totalByCriteria = {
+    critical: bugData.critical,
+    high: bugData.high,
+    medium: bugData.medium,
+    low: bugData.low
+  };
+  
+  const totalBySeverity = {
+    critical: bugData.critical,
+    high: bugData.high,
+    medium: bugData.medium,
+    low: bugData.low
+  };
+  
+  const grandTotal = bugData.critical + bugData.high + bugData.medium + bugData.low;
+  
+  return (
+    <div className="bugs-table-container" style={{ borderColor: statusColors.border }}>
+      <div className="bugs-table-header">
+        <span className="bugs-table-title">🐛 Bug Severity Matrix</span>
+        <span className="bugs-total-count">Total: {grandTotal}</span>
+      </div>
+      <table className="bugs-table">
+        <thead>
+          <tr>
+            <th>Severity/Priority</th>
+            <th>1-Critical</th>
+            <th>2-High</th>
+            <th>3-Medium</th>
+            <th>4-Low</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Critical</strong></td>
+            <td>{bugData.critical}</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td><strong>{totalBySeverity.critical}</strong></td>
+          </tr>
+          <tr>
+            <td><strong>High</strong></td>
+            <td>0</td>
+            <td>{bugData.high}</td>
+            <td>0</td>
+            <td>0</td>
+            <td><strong>{totalBySeverity.high}</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Medium</strong></td>
+            <td>0</td>
+            <td>0</td>
+            <td>{bugData.medium}</td>
+            <td>0</td>
+            <td><strong>{totalBySeverity.medium}</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Low</strong></td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>{bugData.low}</td>
+            <td><strong>{totalBySeverity.low}</strong></td>
+          </tr>
+          <tr className="total-row">
+            <td><strong>Total</strong></td>
+            <td><strong>{totalByCriteria.critical}</strong></td>
+            <td><strong>{totalByCriteria.high}</strong></td>
+            <td><strong>{totalByCriteria.medium}</strong></td>
+            <td><strong>{totalByCriteria.low}</strong></td>
+            <td><strong>{grandTotal}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const ProjectCard = ({ project, onEdit, onDelete, onViewHistory }) => {
   const getStatusClass = (status) => {
     const statusMap = {
