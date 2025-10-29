@@ -383,19 +383,30 @@ export const exportAllProjectsAsPPT = async (projects) => {
       return;
     }
 
-    // Create a comprehensive HTML document that can be opened in PowerPoint
-    const htmlContent = generatePowerPointHTML(projects);
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
     
-    // Create blob and download as HTML file that can be opened in PowerPoint
-    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    const fileName = `program_pulse_projects_${new Date().toISOString().split('T')[0]}.html`;
+    // Call backend API to generate PPTX
+    const response = await fetch(`${BACKEND_URL}/api/export-ppt`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(projects),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate PowerPoint');
+    }
+    
+    // Download the file
+    const blob = await response.blob();
+    const fileName = `program_pulse_projects_${new Date().toISOString().split('T')[0]}.pptx`;
     saveAs(blob, fileName);
     
-    alert('HTML file downloaded! You can open it in your browser and use File > Print > Save as PDF, then import into PowerPoint, or copy-paste the content directly into PowerPoint.');
-    console.log('HTML export successful:', fileName);
+    console.log('PowerPoint export successful:', fileName);
   } catch (error) {
     console.error('Failed to export as PowerPoint:', error);
-    alert('Failed to generate export file: ' + error.message);
+    alert('Failed to generate PowerPoint file: ' + error.message);
   }
 };
 
