@@ -384,8 +384,6 @@ export const exportAllProjectsAsPPT = async (projects) => {
       return;
     }
 
-    // Dynamic import of pptxgenjs
-    const pptxgen = (await import('pptxgenjs')).default;
     const pres = new pptxgen();
     
     // Set presentation properties
