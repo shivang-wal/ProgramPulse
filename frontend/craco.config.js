@@ -37,6 +37,19 @@ const webpackConfig = {
     },
     configure: (webpackConfig) => {
 
+      // Add fallbacks for node modules (for pptxgenjs)
+      webpackConfig.resolve.fallback = {
+        ...webpackConfig.resolve.fallback,
+        "fs": false,
+        "https": false,
+        "http": false,
+        "stream": false,
+        "crypto": false,
+        "zlib": false,
+        "path": false,
+        "buffer": false,
+      };
+
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
         // Remove hot reload related plugins
