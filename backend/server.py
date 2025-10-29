@@ -240,6 +240,292 @@ async def delete_event(event_id: str):
     
     return {"message": "Event deleted successfully"}
 
+@api_router.post("/export-ppt")
+async def export_projects_ppt(projects: List[Project]):
+    """Generate PowerPoint presentation from projects"""
+    try:
+        # Create presentation
+        prs = Presentation()
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(7.5)
+        
+        # Define colors (LucyRx theme)
+        PURPLE = RGBColor(74, 65, 115)  # #4A4173
+        LIGHT_PURPLE = RGBColor(107, 91, 149)  # #6B5B95
+        CREAM = RGBColor(255, 249, 230)  # #FFF9E6
+        WHITE = RGBColor(255, 255, 255)
+        
+        # Status colors
+        STATUS_COLORS = {
+            'On Track': RGBColor(16, 185, 129),
+            'At Risk': RGBColor(245, 158, 11),
+            'Delayed': RGBColor(239, 68, 68),
+            'Completed': RGBColor(99, 102, 241)
+        }
+        
+        # Title Slide
+        title_slide_layout = prs.slide_layouts[6]  # Blank layout
+        title_slide = prs.slides.add_slide(title_slide_layout)
+        
+        # Background for title slide
+        background = title_slide.background
+        fill = background.fill
+        fill.solid()
+        fill.fore_color.rgb = PURPLE
+        
+        # Add logo
+        logo_path = Path(__file__).parent / 'lucy_logo.png'
+        if logo_path.exists():
+            title_slide.shapes.add_picture(
+                str(logo_path),
+                Inches(4),
+                Inches(1.5),
+                width=Inches(2)
+            )
+        
+        # Title
+        title_box = title_slide.shapes.add_textbox(
+            Inches(0.5), Inches(3.5), Inches(9), Inches(1)
+        )
+        title_frame = title_box.text_frame
+        title_frame.text = 'Program Pulse'
+        title_para = title_frame.paragraphs[0]
+        title_para.font.size = Pt(48)
+        title_para.font.bold = True
+        title_para.font.color.rgb = WHITE
+        title_para.alignment = PP_ALIGN.CENTER
+        
+        # Subtitle
+        subtitle_box = title_slide.shapes.add_textbox(
+            Inches(0.5), Inches(4.5), Inches(9), Inches(0.5)
+        )
+        subtitle_frame = subtitle_box.text_frame
+        subtitle_frame.text = 'keeping a pulse on all LucyRx initiatives'
+        subtitle_para = subtitle_frame.paragraphs[0]
+        subtitle_para.font.size = Pt(18)
+        subtitle_para.font.italic = True
+        subtitle_para.font.color.rgb = WHITE
+        subtitle_para.alignment = PP_ALIGN.CENTER
+        
+        # Date and project count
+        date_text = datetime.now().strftime('%B %d, %Y')
+        info_box = title_slide.shapes.add_textbox(
+            Inches(0.5), Inches(5.5), Inches(9), Inches(0.5)
+        )
+        info_frame = info_box.text_frame
+        info_frame.text = f'{date_text}\n{len(projects)} Active Project{"s" if len(projects) != 1 else ""}'
+        for para in info_frame.paragraphs:
+            para.font.size = Pt(14)
+            para.font.color.rgb = WHITE
+            para.alignment = PP_ALIGN.CENTER
+        
+        # Create slides for each project
+        for idx, project in enumerate(projects):
+            # Use blank layout
+            slide_layout = prs.slide_layouts[6]
+            slide = prs.slides.add_slide(slide_layout)
+            
+            # Background
+            background = slide.background
+            fill = background.fill
+            fill.solid()
+            fill.fore_color.rgb = CREAM
+            
+            # Header bar
+            header_shape = slide.shapes.add_shape(
+                1,  # Rectangle
+                Inches(0), Inches(0),
+                Inches(10), Inches(0.6)
+            )
+            header_shape.fill.solid()
+            header_shape.fill.fore_color.rgb = PURPLE
+            header_shape.line.fill.background()
+            
+            # Add logo to header
+            if logo_path.exists():
+                slide.shapes.add_picture(
+                    str(logo_path),
+                    Inches(0.2),
+                    Inches(0.15),
+                    height=Inches(0.3)
+                )
+            
+            # Project number
+            header_text = header_shape.text_frame
+            header_text.text = f'Project {idx + 1} of {len(projects)}'
+            header_text.paragraphs[0].font.size = Pt(14)
+            header_text.paragraphs[0].font.color.rgb = WHITE
+            header_text.paragraphs[0].alignment = PP_ALIGN.RIGHT
+            header_text.margin_right = Inches(0.3)
+            
+            # Project name
+            name_box = slide.shapes.add_textbox(
+                Inches(0.5), Inches(1), Inches(9), Inches(0.7)
+            )
+            name_frame = name_box.text_frame
+            name_frame.text = project.name or 'Unnamed Project'
+            name_para = name_frame.paragraphs[0]
+            name_para.font.size = Pt(32)
+            name_para.font.bold = True
+            name_para.font.color.rgb = PURPLE
+            
+            # Status badge
+            status_color = STATUS_COLORS.get(project.status, STATUS_COLORS['On Track'])
+            status_shape = slide.shapes.add_shape(
+                1,  # Rectangle
+                Inches(0.5), Inches(1.8),
+                Inches(1.5), Inches(0.4)
+            )
+            status_shape.fill.solid()
+            status_shape.fill.fore_color.rgb = status_color
+            status_shape.line.fill.background()
+            
+            status_text = status_shape.text_frame
+            status_text.text = project.status or 'On Track'
+            status_para = status_text.paragraphs[0]
+            status_para.font.size = Pt(14)
+            status_para.font.bold = True
+            status_para.font.color.rgb = WHITE
+            status_para.alignment = PP_ALIGN.CENTER
+            
+            y_pos = 2.4
+            
+            # Helper function to add section
+            def add_section(title, content, y):
+                if not content or content == 'None' or content == 'NA':
+                    return y
+                
+                # Section box
+                section_shape = slide.shapes.add_shape(
+                    1,  # Rectangle
+                    Inches(0.5), Inches(y),
+                    Inches(9), Inches(0.8)
+                )
+                section_shape.fill.solid()
+                section_shape.fill.fore_color.rgb = RGBColor(245, 240, 255)
+                section_shape.line.fill.background()
+                
+                # Section text
+                text_frame = section_shape.text_frame
+                text_frame.margin_top = Inches(0.1)
+                text_frame.margin_left = Inches(0.2)
+                text_frame.margin_right = Inches(0.2)
+                
+                # Title
+                p = text_frame.paragraphs[0]
+                p.text = title
+                p.font.size = Pt(11)
+                p.font.bold = True
+                p.font.color.rgb = LIGHT_PURPLE
+                
+                # Content
+                p = text_frame.add_paragraph()
+                p.text = content
+                p.font.size = Pt(12)
+                p.font.color.rgb = PURPLE
+                p.space_before = Pt(2)
+                
+                return y + 0.9
+            
+            # Add sections
+            if project.completedThisWeek:
+                y_pos = add_section('COMPLETED THIS WEEK', project.completedThisWeek, y_pos)
+            
+            if project.risks and project.risks != 'None' and project.risks != 'NA':
+                y_pos = add_section('RISKS', project.risks, y_pos)
+            
+            if project.escalation and project.escalation != 'None':
+                y_pos = add_section('ESCALATION', project.escalation, y_pos)
+            
+            if project.plannedNextWeek:
+                y_pos = add_section('PLANNED NEXT WEEK', project.plannedNextWeek, y_pos)
+            
+            # Bug severity matrix
+            bugs = project.bugs
+            total_bugs = bugs.critical + bugs.high + bugs.medium + bugs.low
+            
+            if total_bugs > 0 and y_pos < 6.5:
+                # Title
+                bug_title = slide.shapes.add_textbox(
+                    Inches(0.5), Inches(y_pos), Inches(9), Inches(0.3)
+                )
+                bug_title_frame = bug_title.text_frame
+                bug_title_frame.text = f'BUG SEVERITY MATRIX (Total: {total_bugs})'
+                bug_title_frame.paragraphs[0].font.size = Pt(11)
+                bug_title_frame.paragraphs[0].font.bold = True
+                bug_title_frame.paragraphs[0].font.color.rgb = LIGHT_PURPLE
+                
+                y_pos += 0.35
+                
+                # Bug cards
+                bug_data = [
+                    ('CRITICAL', bugs.critical, RGBColor(220, 38, 38)),
+                    ('HIGH', bugs.high, RGBColor(245, 158, 11)),
+                    ('MEDIUM', bugs.medium, RGBColor(59, 130, 246)),
+                    ('LOW', bugs.low, RGBColor(16, 185, 129))
+                ]
+                
+                x_pos = 0.5
+                for label, count, color in bug_data:
+                    card = slide.shapes.add_shape(
+                        1,  # Rectangle
+                        Inches(x_pos), Inches(y_pos),
+                        Inches(2), Inches(0.6)
+                    )
+                    card.fill.solid()
+                    card.fill.fore_color.rgb = color
+                    card.line.fill.background()
+                    
+                    card_text = card.text_frame
+                    card_text.vertical_anchor = 1  # Middle
+                    
+                    # Label
+                    p = card_text.paragraphs[0]
+                    p.text = label
+                    p.font.size = Pt(10)
+                    p.font.bold = True
+                    p.font.color.rgb = WHITE
+                    p.alignment = PP_ALIGN.CENTER
+                    
+                    # Count
+                    p = card_text.add_paragraph()
+                    p.text = str(count)
+                    p.font.size = Pt(16)
+                    p.font.bold = True
+                    p.font.color.rgb = WHITE
+                    p.alignment = PP_ALIGN.CENTER
+                    
+                    x_pos += 2.2
+            
+            # Footer
+            footer = slide.shapes.add_textbox(
+                Inches(0.5), Inches(7), Inches(9), Inches(0.3)
+            )
+            footer_frame = footer.text_frame
+            footer_frame.text = 'Generated by Program Pulse'
+            footer_para = footer_frame.paragraphs[0]
+            footer_para.font.size = Pt(10)
+            footer_para.font.italic = True
+            footer_para.font.color.rgb = LIGHT_PURPLE
+            footer_para.alignment = PP_ALIGN.CENTER
+        
+        # Save to temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pptx')
+        prs.save(temp_file.name)
+        temp_file.close()
+        
+        # Return file
+        filename = f'program_pulse_projects_{datetime.now().strftime("%Y-%m-%d")}.pptx'
+        return FileResponse(
+            temp_file.name,
+            media_type='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            filename=filename
+        )
+    
+    except Exception as e:
+        logging.error(f"Error generating PPT: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate PowerPoint: {str(e)}")
+
 
 # Include the router in the main app
 app.include_router(api_router)
