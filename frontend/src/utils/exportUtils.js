@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import pptxgen from 'pptxgenjs';
 
 // Generate PDF for a single project
 export const generateProjectPDF = (project) => {
