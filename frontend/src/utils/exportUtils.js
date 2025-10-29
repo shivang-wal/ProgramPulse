@@ -676,12 +676,6 @@ const generatePowerPointHTML = (projects) => {
   return html;
 };
     
-    // Set presentation properties
-    pres.author = 'Program Pulse';
-    pres.company = 'LucyRx';
-    pres.subject = 'Project Status Report';
-    pres.title = 'Program Pulse - Project Dashboard';
-    
     // Define LucyRx theme colors
     const colors = {
       purple: '4A4173',
