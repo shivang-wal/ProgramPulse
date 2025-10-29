@@ -594,6 +594,14 @@ const Dashboard = () => {
                 >
                   📊 Export Excel
                 </button>
+                <button 
+                  onClick={() => exportAllProjectsAsPPT(projects)} 
+                  className="export-btn export-btn-ppt"
+                  data-testid="export-ppt-button"
+                  title="Export as PowerPoint"
+                >
+                  📊 Export PPT
+                </button>
               </div>
             )}
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
