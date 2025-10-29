@@ -82,6 +82,11 @@ const webpackConfig = {
         webpackConfig.plugins.push(healthPluginInstance);
       }
 
+      // Add Node polyfill plugin for pptxgenjs
+      webpackConfig.plugins.push(new NodePolyfillPlugin({
+        excludeAliases: ["console", "fs", "https", "http"]
+      }));
+
       return webpackConfig;
     },
   },
